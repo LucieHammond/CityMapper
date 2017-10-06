@@ -54,11 +54,10 @@ def closest_available_hour(day):
 
     # Prendre l'horaire displonible le plus proche
     hour = day.hour + day.minute / 60.0 + day.second / 3600.0
-    next = (hour + 1) % 3 > 1.5
+    is_next = (hour + 1) % 3 > 1.5
 
-    new_date = day - timedelta(hours=int((hour + 1) % 3), minutes=day.minute, seconds=day.second) + next * timedelta(hours=3)
+    new_date = day - timedelta(hours=int((hour + 1) % 3), minutes=day.minute, seconds=day.second) + is_next * timedelta(hours=3)
 
     string_date = new_date.strftime("%Y-%m-%d %H:%M:%S")
 
     return string_date
-

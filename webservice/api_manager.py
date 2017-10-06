@@ -30,17 +30,10 @@ class ApiManager:
         else:
             return data
 
-    def find_data(self, params):
-        """ Renvoie un dictionnaire contenant les informations voulues (params) renvoyées par l'API"""
+    def find_data(self, *args):
+        """ Renvoie un dictionnaire contenant les informations voulues renvoyées par l'API"""
 
-        response = self.call_api()
-        data = {}
-        for param in params:
-            if param in response:
-                data[param] = response[param]
-            else:
-                raise ParamNotFoundError(param)
-        return data
+        raise NotImplementedError
 
 
 class InvalidReplyError(Exception):
