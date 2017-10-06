@@ -15,7 +15,12 @@ print result.status_code
 
 print result.json()
 
-
+OPENDATA_API_URL = "https://opendata.paris.fr/api/records/1.0/search/"
 
 class Stations(ApiManager):
-    pass
+
+    dataset = "dataset"
+
+    def shape_url(self):
+
+        url = OPENDATA_API_URL + "?"

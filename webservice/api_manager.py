@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 import requests
 
@@ -29,6 +30,18 @@ class ApiManager:
         else:
             return data
 
+    def find_data(self, params):
+        """ Renvoie un dictionnaire contenant les informations voulues (params) renvoyées par l'API"""
+
+        response = self.call_api()
+        data = {}
+        for param in params:
+            if param in response:
+                data[param] = response[param]
+            else:
+                raise ParamNotFoundError(param)
+        return data
+
 
 class InvalidReplyError(Exception):
 
@@ -37,3 +50,12 @@ class InvalidReplyError(Exception):
 
     def __str__(self):
         return "API responded with invalid status code {}".format(self._code)
+
+
+class ParamNotFoundError(Exception):
+
+    def __init__(self, param):
+        self._param = param
+
+    def __str__(self):
+        return "Unable to find param '{}' in API's response".format(self._param)
