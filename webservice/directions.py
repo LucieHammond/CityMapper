@@ -6,6 +6,7 @@ from api_manager import ApiManager, ParamNotFoundError
 GMAP_API_URL = "https://maps.googleapis.com/maps/api/directions/json"
 API_KEY = "AIzaSyCd5Hw6lEZ0Nq2P4tXQ9ueKq2yIGa_KLrg"
 
+# Les modes de déplacements possibles pour l'API de Google Maps
 DRIVING_MODE = "driving"
 BICYCLING_MODE = "bicycling"
 WALKING_MODE = "walking"
@@ -13,14 +14,20 @@ TRANSIT_MODE = "transit"
 
 
 class Directions(ApiManager):
+    """ Web service d'optimisation d'itinéraires qui fait appel à l'API Directions de Google Maps"""
 
     def __init__(self):
         default_settings = {"key": API_KEY}
         ApiManager.__init__(self, GMAP_API_URL, default_settings)
 
     def get_from_api(self, origin, destination, mode, departure_time=time.time()):
-        """"
-        On retourne le temps total et la décomposition des temps par moyen de transport
+        """" Renvoie le détail du plus court trajet trouvé grâce
+
+        :param origin: position du départ (latitude, longitude)
+        :param destination: position de l'arrivée (latitude, longitude)
+        :param mode: mode de déplacement
+        :param departure_time: moment du départ (utilisable uniquement pour des trajets en métro)
+
         """
         params = dict()
         params["origin"] = str(origin[0]) + "," + str(origin[1])
@@ -31,7 +38,7 @@ class Directions(ApiManager):
             params["departure_time"] = int(departure_time)
 
         response = self._call_api(params)
-        transit_ride = mode == TRANSIT_MODE
+        transit_ride = (mode == TRANSIT_MODE)
 
         try:
             data = self._parse_response(response, transit_ride)
@@ -42,9 +49,16 @@ class Directions(ApiManager):
 
     @staticmethod
     def _parse_response(response, transit_ride):
-        """
-        {total: (distance en m, time en s),
-        modes:{subway:(dist, time), walking:(dist, time) waiting:(dist, time)}
+        """ Analyse la réponse obtenue et renvoie les informations importantes sous forme simplifiée
+
+        Dans le cas d'un trajet simple (mode de déplacement connu et unique):
+        :return: {distance en m, temps en s, adresse de départ, adresse d'arrivée}
+
+        Dans le cas d'un trajet avec transit (transit_ride = True):
+        :return:
+        { main : {distance en m, temps en s, adresse de départ, adresse d'arrivée}
+        steps : [{mode, distance, temps, détails (si portion de parcours en métro)} pour chaque étape]
+
         """
         route = response["routes"][0]["legs"][0]
 

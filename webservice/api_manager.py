@@ -4,12 +4,23 @@ import requests
 
 
 class ApiManager:
+    """ Gestionnaire de communication avec une API dont on renseigne l'URL et les paramêtres à passer par défaut """
 
     def __init__(self, url, default_settings=None):
         self._url = url
         self._default_settings = default_settings if default_settings else dict()
 
     def _call_api(self, payload=None):
+        """ Effectue une requête GET vers l'API et retourne la réponse renvoyée
+
+        :param payload: les paramêtres personnalisables de la requête à passer dans l'URL
+        :return: la réponse du serveur (au format json) sous forme de dictionnaire
+
+        En cas d'erreur:
+        - Affiche un message explicite sur le type de problème rencontré
+        - Déclenche l'erreur générique ApiCallError
+
+        """
 
         if not payload:
             payload = {}
@@ -38,8 +49,14 @@ class ApiManager:
         else:
             return data
 
-    def get_from_api(self, **kargs):
-        """ Renvoie un dictionnaire contenant les informations voulues renvoyées par l'API"""
+    def get_from_api(self, **kwargs):
+        """
+            Effectue un appel à l'API pour demander et obtenir des données
+            Renvoie les informations utiles dans un format simplifié et pratique
+            Cette méthode est implémentée de façon spécifique dans les classes filles
+
+            :param kwargs: paramêtres éventuels pour cibler la demande
+        """
         raise NotImplementedError
 
 

@@ -9,24 +9,29 @@ PARIS_ID = 6455259
 
 
 class Weather(ApiManager):
+    """ Web Service météorologique qui fait appel à l'API Forecast de Open Weather Map """
 
     def __init__(self):
         default_settings = {"APPID": API_KEY, "id": PARIS_ID}
         ApiManager.__init__(self, OPENWEATHER_API_URL, default_settings)
 
     def get_from_api(self, timestamp=time.time()):
-        """"
-        On retourne les données suivantes :
-        - température (en Celsius)
-        - pluie (en mm sur 3h)
-        - neige (en mm sur 3h)
-        - vent (en m/s)
+        """" Renvoie les informations météorologiques observées sur Paris au moment du départ
+
+        :param timestamp: moment de l'observation (par défault maintenant)
+        :return:
+        - temperature (en Celsius)
+        - rain (en mm sur 3h)
+        - snow (en mm sur 3h)
+        - wind (en m/s)
+        :rtype: dict
+
         """
         response = self._call_api()
 
         data = dict()
         try:
-            # Take the closest forecast
+            # On prend la prévision la plus proche dans le temps
             record = sorted(response["list"], key=lambda elem: abs(timestamp - elem["dt"]))[0]
             data["temperature"] = round(record["main"]["temp"] - 273.15, 2)  # Conversion Kelvin -> Celsius
             data["rain"] = record["rain"]["3h"] if "rain" in record else 0

@@ -4,10 +4,11 @@ from stations import Stations
 from api_manager import ParamNotFoundError
 
 VELIB_STATIONS = 1122  # 1122 stations Velib
-SEEKING_DIST = 800  # We search stations at less than 800m
+SEEKING_DIST = 800  # On cherche des stations à moins de 800m
 
 
 class Velib(Stations):
+    """ Web Service de vérification des disponibilités en temps réel des Vélibs sur Paris """
 
     dataset = "stations-velib-disponibilites-en-temps-reel"
 
@@ -17,7 +18,15 @@ class Velib(Stations):
         Stations.__init__(self, Velib.dataset, facets, VELIB_STATIONS, infos_to_get)
 
     def get_from_api(self, point, is_start, real_time=True):
-        """ Renvoie la liste des 5 stations les plus proches du point indiqué """
+        """ Renvoie la liste des 5 stations Velib les plus proches du point indiqué
+
+        :param point: point géographique autour duquel on filtre les stations (latitude, longitude)
+        :param is_start:
+        - True si on cherche des stations de départ (avec des vélos)
+        - False si on cherche des stations d'arrivée (avec des emplacements libres)
+        :param real_time: True si la course cherchée est imminente
+
+        """
 
         params = self._config_geofilter(point, SEEKING_DIST)
         response = self._call_api(params)

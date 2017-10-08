@@ -8,6 +8,10 @@ MAX_UPDATE_DELAY = 20  # en minutes
 
 
 class Stations(ApiManager):
+    """
+        Gestionnaire d'API lié à la recherche de données sur les infrastructures de transport publiques (stations)
+        qui utilise l'une des API de Open Data Paris (Velib, Autolib...)
+    """
 
     def __init__(self, dataset, default_facets, total_rows, infos):
         default_settings = {"dataset": dataset, "rows": total_rows}
@@ -19,16 +23,27 @@ class Stations(ApiManager):
 
     @staticmethod
     def _config_geofilter(point, distance):
+        """ Configure les paramêtres à envoyer dans la requête pour filtrer géographiquement les stations """
 
         latitude = str(point[0])
         longitude = str(point[1])
 
-        params = {"sort": "dist"}
+        # On veut recevoir les stations triées par ordre décroissant de leur distance au point donné
+        params = dict({"sort": "dist"})
+        # Les stations sont filtrées suivant une distance maximale à ne pas dépasser
         params["geofilter.distance"] = latitude + "," + longitude + "," + str(distance)
 
         return params
 
     def _parse_response(self, response, key_param, real_time):
+        """ Analyse la réponse renvoyée par l'API pour en extraires les informations importantes
+
+        :param response: réponse de l'API à la requête effectuée
+        :param key_param: nom du paramêtre indiquant les places disponibles (sur lequel on sélectionne les stations)
+        :param real_time: True si la course cherchée est imminente (sinon pas besoin de vérifier les disponibilités)
+        :return: liste des 5 stations (au plus) les mieux adaptées à la demande
+
+        """
 
         best_stations = list()
         now = datetime.utcnow()
@@ -60,7 +75,8 @@ class Stations(ApiManager):
         raise NotImplementedError
 
 
-# Useful functions
+# Fonctions utiles
 def check_delay(date, last_update_string):
+    """ Vérifie que les données de disponiblités ont été mise à jour récemment """
     last_update = datetime.strptime(last_update_string, '%Y-%m-%dT%H:%M:%S+00:00')
     return date - last_update < timedelta(minutes=MAX_UPDATE_DELAY)
