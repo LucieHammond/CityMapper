@@ -3,11 +3,12 @@
 dico = {"a":1, "b":2}
 dico.update({})
 
-text = u'{"address": "28 Bd de la R\xe9publique 92100 BOULOGNE BILLANCOURT"}'
-print type(text)
-print text
-
-text2 = unicode(text)
-print type(text2)
-
-print text2
+a = (2, 45)
+b = (5, 127)
+c = a + b
+list1 = [1,2,3,4]
+a = list1.pop()
+print list1
+print a
+list1.append(a)
+print list1
