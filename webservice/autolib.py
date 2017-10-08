@@ -18,13 +18,14 @@ class Autolib(Stations):
         Stations.__init__(self, Autolib.dataset, facets, AUTOLIB_STATIONS, infos_to_get)
 
     def get_from_api(self, point, is_start, real_time=True):
-        """ Renvoie la liste des 5 stations Autolib les plus proches du point indiqué
+        """ Renvoie la liste des 3 stations Autolib les plus proches du point indiqué
 
         :param point: point géographique autour duquel on filtre les stations (latitude, longitude)
         :param is_start:
         - True si on cherche des stations de départ (avec des voitures)
         - False si on cherche des stations d'arrivée (avec des emplacements libres)
         :param real_time: True si la course cherchée est imminente
+        :return: [{nom de la station, adresse, position, nb de places} pour chaque station]
 
         """
 

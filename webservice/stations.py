@@ -41,7 +41,7 @@ class Stations(ApiManager):
         :param response: réponse de l'API à la requête effectuée
         :param key_param: nom du paramêtre indiquant les places disponibles (sur lequel on sélectionne les stations)
         :param real_time: True si la course cherchée est imminente (sinon pas besoin de vérifier les disponibilités)
-        :return: liste des 5 stations (au plus) les mieux adaptées à la demande
+        :return: liste des 3 stations (au plus) les mieux adaptées à la demande
 
         """
 
@@ -50,7 +50,7 @@ class Stations(ApiManager):
 
         found = 0
         stations = iter(response["records"])
-        while found < 5:
+        while found < 3:
             try:
                 station = next(stations)
             except StopIteration:

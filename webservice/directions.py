@@ -56,7 +56,7 @@ class Directions(ApiManager):
 
         Dans le cas d'un trajet avec transit (transit_ride = True):
         :return:
-        { main : {distance en m, temps en s, adresse de départ, adresse d'arrivée}
+        { main : {distance en m, temps en s}
         steps : [{mode, distance, temps, détails (si portion de parcours en métro)} pour chaque étape]
 
         """
@@ -65,8 +65,6 @@ class Directions(ApiManager):
         main = dict()
         main["dist"] = route["distance"]["value"]
         main["time"] = route["duration"]["value"]
-        main["start_address"] = route["start_address"]
-        main["end_address"] = route["end_address"]
 
         if not transit_ride:
             return main
