@@ -7,6 +7,13 @@ import time
 
 ONE_HOUR = 3600
 
+# Forfaits Velib possibles
+SUBSCRIPTION_30M = "VELIB_SUBSCRIPTION_30M"
+SUBSCRIPTION_45M = "VELIB_SUBSCRIPTION_45M"
+TICKETS_30M = "VELIB_TICKETS_30M"
+NO_SUBSCRIPTION = "VELIB_NO_SUBSCRIPTION"
+
+
 class VelibRoute(Route):
 
     def __init__(self, ride):
