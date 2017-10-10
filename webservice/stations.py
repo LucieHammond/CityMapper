@@ -29,7 +29,7 @@ class Stations(ApiManager):
         longitude = str(point[1])
 
         # On veut recevoir les stations triées par ordre décroissant de leur distance au point donné
-        params = dict({"sort": "dist"})
+        params = dict({"sort": "-dist"})
         # Les stations sont filtrées suivant une distance maximale à ne pas dépasser
         params["geofilter.distance"] = latitude + "," + longitude + "," + str(distance)
 
