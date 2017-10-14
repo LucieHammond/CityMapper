@@ -34,7 +34,6 @@ class Directions(ApiManager):
         params["destination"] = str(destination[0]) + "," + str(destination[1])
         params["mode"] = mode
         if mode == TRANSIT_MODE:
-            params["transit_mode"] = "subway"
             params["departure_time"] = int(departure_time)
 
         response = self._call_api(params)

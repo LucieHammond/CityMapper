@@ -9,7 +9,7 @@ class Route():
         self._distance = None
         self._modes_breakdown = None
 
-        self._calculate_route()
+        self.calculate_route()
 
     @property
     def time(self):
@@ -23,7 +23,7 @@ class Route():
     def modes_breakdown(self):
         return self._modes_breakdown
 
-    def _calculate_route(self):
+    def calculate_route(self):
         raise NotImplementedError
 
     def _compute_price(self):
