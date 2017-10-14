@@ -24,13 +24,38 @@ class User:
     def username(self):
         return self._username
 
+    @property
+    def password(self):
+        return self._password
+
+    @property
+    def preferences(self):
+        return self._preferences
+
+    @preferences.setter
+    def preferences(self, value):
+        self._preferences = value
+
+    @property
+    def driving_licence(self):
+        return self._driving_licence
+
+    @driving_licence.setter
+    def driving_licence(self, value):
+        self._driving_licence = value
+
     def set_subscriptions_infos(self, velib, autolib, subway):
         self._subscriptions = {"velib": velib, "autolib": autolib, "subway": subway}
 
-    def set_preferences(self, fastest, shortest, cheapest, easiest, nicest, less_walking):
-        self._preferences = {FASTEST: fastest,
-                             SHORTEST: shortest,
-                             CHEAPEST: cheapest,
-                             EASIEST: easiest,
-                             NICEST: nicest,
-                             LESS_WAKING: less_walking}
+    def print_user_infos(self, detailed=False):
+        print "Utilisateur {} : {} ({} ans)".format(self._id, self._username, self._age)
+        if detailed:
+            print "- - - - - - - - - - - - - - - - - - - - - - - - - - - - "
+            print "Abonnements :"
+            print " - Velib :", self._subscriptions["velib"]
+            print " - Autolib :", self._subscriptions["autolib"]
+            print " - Transports en commun :", self._subscriptions["subway"]
+            print "Préférences :"
+            for preference, value in self._preferences.items():
+                print " - {} : {}".format(preference, str(value))
+            print "Permis de conduire : {}\n".format("Oui" if self._driving_licence else "Non")
