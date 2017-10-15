@@ -1,5 +1,11 @@
 # -*- coding: utf-8 -*-
 
+# Les modes de déplacement possibles
+DRIVING_MODE = "driving"
+BICYCLING_MODE = "bicycling"
+WALKING_MODE = "walking"
+TRANSIT_MODE = "transit"
+
 
 class Route():
 
@@ -8,6 +14,7 @@ class Route():
         self._time = None
         self._distance = None
         self._modes_breakdown = None
+        self._steps = None
 
         self.calculate_route()
 
@@ -26,14 +33,14 @@ class Route():
     def calculate_route(self):
         raise NotImplementedError
 
-    def _compute_price(self):
+    def get_price(self):
         raise NotImplementedError
 
-    def _compute_confort(self):
+    def get_discomfort(self):
         raise NotImplementedError
 
-    def _compute_risk(self):
-        raise NotImplementedError
+    def get_transfers_number(self):
+        return len(self._steps) - 1
 
-    def _compute_environmental_impact(self):
-        raise NotImplementedError
+    def get_walking_time(self):
+        return self._modes_breakdown[WALKING_MODE]

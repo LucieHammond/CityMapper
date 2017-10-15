@@ -2,15 +2,10 @@
 
 import time
 from api_manager import ApiManager, ParamNotFoundError
+from routes.route import TRANSIT_MODE
 
 GMAP_API_URL = "https://maps.googleapis.com/maps/api/directions/json"
 API_KEY = "AIzaSyCd5Hw6lEZ0Nq2P4tXQ9ueKq2yIGa_KLrg"
-
-# Les modes de déplacements possibles pour l'API de Google Maps
-DRIVING_MODE = "driving"
-BICYCLING_MODE = "bicycling"
-WALKING_MODE = "walking"
-TRANSIT_MODE = "transit"
 
 
 class Directions(ApiManager):

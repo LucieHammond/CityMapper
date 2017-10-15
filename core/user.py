@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from ride import FASTEST, SHORTEST, CHEAPEST, EASIEST, NICEST, LESS_WAKING
+from ride import FASTEST, SHORTEST, CHEAPEST, EASIEST, NICEST, LESS_WALKING
 from routes import bicycling, driving, transit
 
 
@@ -18,7 +18,7 @@ class User:
                                "autolib": driving.PRET_A_ROULER,
                                "subway": transit.NO_RATP_TITLE}
         self._driving_licence = True
-        self._preferences = {FASTEST: 4, SHORTEST: 0, CHEAPEST: 3, EASIEST: 2, NICEST: 5, LESS_WAKING: 1}
+        self._preferences = {FASTEST: 4, SHORTEST: 0, CHEAPEST: 3, EASIEST: 2, NICEST: 5, LESS_WALKING: 1}
 
     @property
     def username(self):
@@ -43,6 +43,10 @@ class User:
     @driving_licence.setter
     def driving_licence(self, value):
         self._driving_licence = value
+
+    @property
+    def subscriptions(self):
+        return self._subscriptions
 
     def set_subscriptions_infos(self, velib, autolib, subway):
         self._subscriptions = {"velib": velib, "autolib": autolib, "subway": subway}
