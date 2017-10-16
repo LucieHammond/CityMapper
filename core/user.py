@@ -29,6 +29,10 @@ class User:
         return self._password
 
     @property
+    def age(self):
+        return self._age
+
+    @property
     def preferences(self):
         return self._preferences
 

@@ -82,9 +82,6 @@ class VelibRoute(Route):
         end_routes[b_end].update({"mode": WALKING_MODE})
         b_velib.update({"mode": BICYCLING_MODE})
         self._steps = list([start_routes[b_start], b_velib, end_routes[b_end]])
-
-        self._time = self._steps[0]["time"] + self._steps[1]["time"] + self._steps[2]["time"]
-        self._distance = self._steps[0]["dist"] + self._steps[1]["dist"] + self._steps[2]["dist"]
         self._modes_breakdown = {WALKING_MODE: self._steps[0]["time"] + self._steps[2]["time"],
                                  BICYCLING_MODE: self._steps[1]["time"]}
 
@@ -256,8 +253,35 @@ class VelibRoute(Route):
             if interval[0] < weather["temperature"] <= interval[1]:
                 discomfort += temp_scores[interval]
                 break
+        discomfort *= 3
         for key in luggage_scores.keys():
             if bags_data == key:
-                discomfort += luggage_scores[tuple]
+                discomfort += luggage_scores[tuple] * 8
                 break
         return discomfort
+
+    def display_route(self):
+        print " - - - Itinéraire en Velib (recommandé selon vos critères) - - -"
+        Route.display_route(self)
+        print "Details :"
+        print "  |"
+        print "  | Marchez pendant {} min ({} m)".format(self._steps[0]["time"]/60.0, self._steps[0]["dist"])
+        print "  |"
+        print "  X Station Velib {}{}, à l'adresse {} ({} vélos disponibles)".format(
+            self._start_station["name"],
+            "(station bonus)" if self._start_station["bonus"] else "",
+            self._start_station["address"],
+            self._start_station["places"]
+        )
+        print "  |"
+        print "  | Roulez à vélo pendant {} min ({} m)".format(self._steps[1]["time"]/60.0, self._steps[1]["dist"])
+        print "  |"
+        print "  X Station Velib {}{}, à l'adresse {} ({})".format(
+            self._end_station["name"],
+            "(station bonus)" if self._end_station["bonus"] else "",
+            self._end_station["address"],
+            self._end_station["places"]
+        )
+        print "  |"
+        print "  | Marchez pendant {} min ({} m)".format(self._steps[2]["time"]/60.0, self._steps[2]["dist"])
+        print "  |"
