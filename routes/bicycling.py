@@ -1,36 +1,49 @@
 # -*- coding: utf-8 -*-
 
-from route import Route, WALKING_MODE, BICYCLING_MODE
-from core.ride import FASTEST, SHORTEST, LESS_WALKING, CHEAPEST, BACKPACK, HANDBAG
+from route import Route
 from webservice.velib import Velib
 from webservice.directions import Directions
-import time
 from core.tasks import TasksManager
-
+from constants import WALKING_MODE, BICYCLING_MODE, FASTEST, SHORTEST, LESS_WALKING, CHEAPEST, BACKPACK, HANDBAG, \
+    VELIB_SUBSCRIPTION_30M, VELIB_SUBSCRIPTION_45M, VELIB_NO_SUBSCRIPTION
+import time
 
 ONE_HOUR = 3600
-
-# Forfaits Velib possibles
-SUBSCRIPTION_30M = "VELIB_SUBSCRIPTION_30M"
-SUBSCRIPTION_45M = "VELIB_SUBSCRIPTION_45M"
-TICKETS_30M = "VELIB_TICKETS_30M"
-NO_SUBSCRIPTION = "VELIB_NO_SUBSCRIPTION"
 ONE_TICKET_PRICE = 1.70
 
 
 class VelibRoute(Route):
+    """ Itinéraire en Vélib correspondant au trajet demandé """
 
     def __init__(self, ride):
         Route.__init__(self, ride)
+        # 2 caractéristiques spécifiques à l'itinéraire en Vélib : station de départ et station d'arrivée
         self._start_station = None
         self._end_station = None
 
+    @property
+    def start_station(self):
+        return self._start_station
+
+    @property
+    def end_station(self):
+        return self._end_station
+
     def calculate_route(self):
+        """ Calcule l'itinéraire exact le plus adapté aux préférences de l'utilisateur
+
+        Le calcul se fait grâce aux données récupérées depuis les APIs Open Data Velib et Google Map
+        Met à jour les paramêtres de l'objet (initialisés à None pour la plupart) avec l'itinéraire calculé
+        """
 
         velib = Velib()
         directions = Directions()
         ride = self._ride
+
+        # Critères de préférence pour la différentiation des itinéraires similaires
         search_criterion, check_price = self._define_search_criteria()
+
+        # On va vérifier les places displonibles uniquement si le départ a lieu dans moins d'une heure
         real_time = (ride.departure_time - time.time() < ONE_HOUR)
 
         # Cherche les 3 stations disponibles les plus proches du départ
@@ -66,7 +79,7 @@ class VelibRoute(Route):
                 bicycling_routes.new_task(target=directions.get_from_api,
                                           args=(start_station["position"], end_station["position"], BICYCLING_MODE))
 
-        # Compare les itinéraires possibles et renvoie le meilleur suivant les critère de l'utilisateur
+        # Compare les itinéraires possibles et renvoie le meilleur compte tenu des préférences de l'utilisateur
         if check_price:
             b_start, b_end, b_velib = self._check_price(search_criterion, start_stations, end_stations, start_routes,
                                                         end_routes, bicycling_routes)
@@ -86,6 +99,14 @@ class VelibRoute(Route):
                                  BICYCLING_MODE: self._steps[1]["time"]}
 
     def _define_search_criteria(self):
+        """ Analyse les préférences de l'utilisateur pour déterminer le critère de sélection le plus adapté
+
+        Le critère est cherché parmi ceux qui sont pertinents pour différencier deux trajets similaires en Vélib
+        :return:
+        - critère de recherche préféré parmi FASTEST, LESS_WALKING, SHORTEST
+        - booléen indiquant si on veut optimiser le prix avant la comparaison (pour éliminer peut-être des solutions)
+
+        """
         preferences = self._ride.preferences
         relevant_criteria = [FASTEST, LESS_WALKING, SHORTEST]
         best_criterion = FASTEST
@@ -105,6 +126,17 @@ class VelibRoute(Route):
         return best_criterion, check_price
 
     def _optimize_route(self, criterion, start_sts, end_sts, start_rts, end_rts, bicycling_rts):
+        """  Renvoie le meilleur itinéraire suivant le critère d'optimisation passé en paramêtre
+
+        :param criterion: critère d'optimisation
+        :param start_sts: liste des stations de départ possibles (3)
+        :param end_sts: liste des stations d'arrivée possibles (3)
+        :param start_rts: liste des chemins à pied associés aux stations de départ (3)
+        :param end_rts: liste des chemins à pied associés aux stations d'arrivée (3)
+        :param bicycling_rts: liste des itinéraires en vélo d'une station à un autre (3 x 3)
+        :return: index des meilleures stations de départ et d'arrivée, itinéraire en vélo entre les deux
+
+        """
         if criterion == FASTEST:
             return self._optimize_time(start_sts, end_sts, start_rts, end_rts, bicycling_rts)
         elif criterion == SHORTEST:
@@ -113,7 +145,8 @@ class VelibRoute(Route):
             return self._optimize_walking(start_sts, end_sts, start_rts, end_rts, bicycling_rts.results_list())
 
     def _check_price(self, second_criterion, start_stations, end_stations, start_routes, end_routes, bicycling_routes):
-        # Look at bonus stations
+        """ Sélectionner éventuellement les stations en cas de différence de prix constatée (stations bonus) """
+
         starts = [index for index, station in enumerate(start_stations) if not station["bonus"]]
         ends = [index for index, station in enumerate(end_stations) if station["bonus"]]
         if len(starts) > 0 and len(ends) > 0 and (len(starts) < len(start_stations) or len(ends) < len(end_stations)):
@@ -125,11 +158,12 @@ class VelibRoute(Route):
             bicycling_rts = [bicycling_routes[i] for i in all_indices]
             return self._optimize_route(second_criterion, start_sts, end_sts, start_rts, end_rts, bicycling_rts)
         else:
+            # Si les bonus ne permettent pas de différencier les stations, alors le prix se joue sur le temps passé
             return self._optimize_time(start_stations, end_stations, start_routes, end_routes, bicycling_routes)
 
     @staticmethod
     def _optimize_time(start_stations, end_stations, start_routes, end_routes, bicycling_routes):
-        # Garde celui qui minimise le temps de parcours
+        """ Garde l'itinéraire celui qui minimise le temps de parcours """
         time_min = -1
         best_start = 0
         best_end = 0
@@ -149,7 +183,7 @@ class VelibRoute(Route):
 
     @staticmethod
     def _optimize_dist(start_stations, end_stations, start_routes, end_routes, bicycling_routes):
-        # Garde celui qui minimise la distance parcourue
+        """ Garde l'itinéraire qui minimise la distance parcourue """
         dist_min = -1
         best_start = 0
         best_end = 0
@@ -169,7 +203,7 @@ class VelibRoute(Route):
 
     @staticmethod
     def _optimize_walking(start_stations, end_stations, start_routes, end_routes, bicycling_routes):
-        # Garde celui qui minimise le temps de marche
+        """ Garde l'itinéraire qui minimise le temps de marche """
         time_min = -1
         best_start = 0
         best_end = 0
@@ -186,20 +220,23 @@ class VelibRoute(Route):
                 best_end = end
         return best_start, best_end, bicycling_routes[best_end * len(start_stations) + best_start]
 
-    def get_price(self):
+    def _compute_price(self):
+        """ Calcule le prix exact de l'itinéraire finalement choisi """
+
         price = 0
         subscription = self._ride.user.subscriptions["velib"]
-        if subscription == NO_SUBSCRIPTION:
+        if subscription == VELIB_NO_SUBSCRIPTION:
             # Si l'utilisateur n'a pas d'abonnement, il doit acheter son ticket
             price += ONE_TICKET_PRICE
 
-        free_time = 45*60 if subscription == SUBSCRIPTION_45M else 30*60
+        free_time = 45*60 if subscription == VELIB_SUBSCRIPTION_45M else 30*60
         extra_time = self._modes_breakdown[BICYCLING_MODE] - free_time
         bonus = (not self._start_station["bonus"] and self._end_station["bonus"])
         if bonus:
+            # Les stations bonus font gagner 15 min, reportables si abonnement (soit 0.5€ la première demi-heure extra)
             if extra_time > 0:
                 extra_time -= 15
-            elif subscription in [SUBSCRIPTION_45M, SUBSCRIPTION_30M]:
+            elif subscription in [VELIB_SUBSCRIPTION_45M, VELIB_SUBSCRIPTION_30M]:
                 price -= 0.5
 
         if extra_time > 0:
@@ -212,7 +249,8 @@ class VelibRoute(Route):
         # On suppose que tous les voyageurs ont le même forfait vélib et qu'ils sont en âge de faire du vélo
         return price * self._ride.travellers
 
-    def get_discomfort(self):
+    def _compute_discomfort(self):
+        """ Calcule le degré d'inconfort de l'itinéraire finalement choisi """
         weather = self._ride.weather
         luggage = self._ride.luggage
 
@@ -225,14 +263,14 @@ class VelibRoute(Route):
             bags_data = (4, 0)
 
         # Définition d'un barême approximatif qui traduit de degré d'inconfort ressenti (sur une échelle de 0 à 200)
-        # Key = (veleur min exclue, valeur max inclue)
+        # - Key = (veleur min exclue, valeur max inclue)
         rain_scores = {(-1, 0): 0, (0, 1): 25, (1, 5): 50, (5, 20): 75, (20, 50): 100, (50, 500): 200}
         snow_scores = {(-1, 0): 0, (0, 2): 25, (2, 4): 50, (4, 8): 75, (8, 30): 100, (30, 300): 200}
         wind_scores = {(-1, 0.5): 0, (0.5, 3): 15, (3, 8): 30, (8, 14): 45, (14, 20): 60, (20, 24): 75, (24, 28): 90,
                        (28, 33): 120, (33, 200): 200}
         temp_scores = {(-273, -10): 200, (-10, 0): 135, (0, 10): 45, (10, 20): 15, (20, 30): 0, (30, 40): 20,
                        (40, 50): 60, (50, 60): 180, (60, 150): 200}
-        # Key = (nombre de sacs à dos, nombre de sacs à main)
+        # - Key = (nombre de sacs à dos, nombre de sacs à main)
         luggage_scores = {(0, 0): 0, (1, 0): 10, (0, 1): 15, (2, 0): 25, (1, 1): 25, (0, 2): 50, (3, 0): 55, (2, 1): 55,
                           (1, 2): 60, (0, 3): 95, (4, 0): 200}
 
@@ -253,11 +291,13 @@ class VelibRoute(Route):
             if interval[0] < weather["temperature"] <= interval[1]:
                 discomfort += temp_scores[interval]
                 break
-        discomfort *= 3
+        discomfort /= 4.0
         for key in luggage_scores.keys():
             if bags_data == key:
-                discomfort += luggage_scores[tuple] * 8
+                discomfort += luggage_scores[tuple]
                 break
+
+        # Discomfort = discomfort_meteo (sur 200) + discomfort_luggage (sur 200)
         return discomfort
 
     def display_route(self):

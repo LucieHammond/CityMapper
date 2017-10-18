@@ -1,13 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Les modes de déplacement possibles
-DRIVING_MODE = "driving"
-BICYCLING_MODE = "bicycling"
-WALKING_MODE = "walking"
-TRANSIT_MODE = "transit"
+from constants import WALKING_MODE
 
 
-class Route:
+class Route(object):
 
     def __init__(self, ride):
         self._ride = ride
@@ -21,7 +17,9 @@ class Route:
         self._discomfort = None
         self._walking_time = None
 
-        self.calculate_route()
+    @property
+    def steps(self):
+        return self._steps
 
     @property
     def time(self):
@@ -87,5 +85,3 @@ class Route:
         print " - Temps de marche :", self._walking_time
         print " - Agréabilité du trajet (1) :", self._discomfort
         print "(1) Le confort est calculé sur une échelle de 0 (plus agréable) à 2000 (moins agréable)\n"
-
-

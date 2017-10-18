@@ -2,7 +2,7 @@
 
 import time
 from api_manager import ApiManager, ParamNotFoundError
-from routes.route import TRANSIT_MODE
+from constants import TRANSIT_MODE
 
 GMAP_API_URL = "https://maps.googleapis.com/maps/api/directions/json"
 API_KEY = "AIzaSyCd5Hw6lEZ0Nq2P4tXQ9ueKq2yIGa_KLrg"

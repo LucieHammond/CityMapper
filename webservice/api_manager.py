@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import requests
+from threading import Thread
 
 
-class ApiManager:
+class ApiManager(object):
     """ Gestionnaire de communication avec une API dont on renseigne l'URL et les paramêtres à passer par défaut """
 
     def __init__(self, url, default_settings=None):

@@ -2,21 +2,22 @@
 
 from user import User
 from ride import Ride
+from datetime import date
 
 
 # Vérifie le type des arguments des fonctions appelables du système
 def check_params(*types):
-    def params_accepts(function):
+    def params_accepts(funct):
         def new_function(*args, **kwargs):
             for (a, t) in zip(args, types):
                 assert isinstance(a, t)
-            return function(*args, **kwargs)
+            return funct(*args, **kwargs)
 
         return new_function
     return params_accepts
 
 
-class HowToGoSystem:
+class HowToGoSystem(object):
 
     def __init__(self):
         self._users = list()
@@ -24,9 +25,9 @@ class HowToGoSystem:
         self._current_ride = None
         self._best_route = None
 
-    @check_params(object, str, str, int)
-    def sign_up(self, username, password, age):
-        new_user = User(username, password, age)
+    @check_params(object, str, str, date)
+    def sign_up(self, username, password, birthdate):
+        new_user = User(username, password, birthdate)
         self._current_user = new_user
         self._users.append(new_user)
 
@@ -60,6 +61,7 @@ class HowToGoSystem:
         else:
             print "Aucun utilisateur n'est actuellement connecté"
 
+    @check_params(object, tuple, tuple, float)
     def new_ride(self, start, end, departure_time):
         # todo gérer les adresse en chaines de caractères
         if self._current_user:
@@ -92,7 +94,7 @@ class HowToGoSystem:
 
     @check_params(object)
     def start_calculation(self):
-        pass
+        self._current_ride.start_simulation()
 
     def display_users(self):
         for user in self._users:

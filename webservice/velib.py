@@ -42,4 +42,6 @@ class Velib(Stations):
             raise ParamNotFoundError(e.message)
 
         else:
+            for station in best_stations:
+                station["bonus"] = bool(station["bonus"])
             return best_stations
