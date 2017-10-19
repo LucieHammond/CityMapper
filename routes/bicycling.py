@@ -72,6 +72,9 @@ class VelibRoute(Route):
         end_data = walking_routes.next_result()
         end_stations, end_routes = end_data["stations"], end_data["routes"].results_list()
 
+        if len(start_stations) == 0 or len(end_stations) == 0:
+            return False
+
         # Calcule les itinéraires à vélo pour toutes les combinaisons possibles (9 appels au maximum)
         bicycling_routes = TasksManager()
         for start_station in start_stations:
@@ -97,11 +100,12 @@ class VelibRoute(Route):
         self._steps = list([start_routes[b_start], b_velib, end_routes[b_end]])
         self._modes_breakdown = {WALKING_MODE: self._steps[0]["time"] + self._steps[2]["time"],
                                  BICYCLING_MODE: self._steps[1]["time"]}
+        return True
 
     def _define_search_criteria(self):
         """ Analyse les préférences de l'utilisateur pour déterminer le critère de sélection le plus adapté
-
         Le critère est cherché parmi ceux qui sont pertinents pour différencier deux trajets similaires en Vélib
+
         :return:
         - critère de recherche préféré parmi FASTEST, LESS_WALKING, SHORTEST
         - booléen indiquant si on veut optimiser le prix avant la comparaison (pour éliminer peut-être des solutions)
@@ -249,56 +253,24 @@ class VelibRoute(Route):
         # On suppose que tous les voyageurs ont le même forfait vélib et qu'ils sont en âge de faire du vélo
         return price * self._ride.travellers
 
-    def _compute_discomfort(self):
-        """ Calcule le degré d'inconfort de l'itinéraire finalement choisi """
-        weather = self._ride.weather
+    def _compute_difficulty(self):
+        """ Calcule le degré d'inconfort lié à la charge portée pour l'itinéraire finalement choisi """
+
         luggage = self._ride.luggage
 
-        # Vérifier que les bagages du voyageur son bien compatible avec l'exercice du vélo
-        # (sinon l'itinéraire VelibRoute n'aurait jamais dû ête simulé)
+        # Vérifier que les bagages du voyageur sont bien compatible avec l'exercice du vélo
         for bag in luggage.keys():
             assert bag in [HANDBAG, BACKPACK]
-        bags_data = (luggage[BACKPACK], luggage[HANDBAG])
-        if luggage[BACKPACK] + luggage[HANDBAG] >= 4:
-            bags_data = (4, 0)
+        bags_data = (luggage[BACKPACK], luggage[HANDBAG]) if luggage[BACKPACK] + luggage[HANDBAG] < 4 else (4, 0)
 
         # Définition d'un barême approximatif qui traduit de degré d'inconfort ressenti (sur une échelle de 0 à 200)
-        # - Key = (veleur min exclue, valeur max inclue)
-        rain_scores = {(-1, 0): 0, (0, 1): 25, (1, 5): 50, (5, 20): 75, (20, 50): 100, (50, 500): 200}
-        snow_scores = {(-1, 0): 0, (0, 2): 25, (2, 4): 50, (4, 8): 75, (8, 30): 100, (30, 300): 200}
-        wind_scores = {(-1, 0.5): 0, (0.5, 3): 15, (3, 8): 30, (8, 14): 45, (14, 20): 60, (20, 24): 75, (24, 28): 90,
-                       (28, 33): 120, (33, 200): 200}
-        temp_scores = {(-273, -10): 200, (-10, 0): 135, (0, 10): 45, (10, 20): 15, (20, 30): 0, (30, 40): 20,
-                       (40, 50): 60, (50, 60): 180, (60, 150): 200}
-        # - Key = (nombre de sacs à dos, nombre de sacs à main)
+        # Key = (nombre de sacs à dos, nombre de sacs à main)
         luggage_scores = {(0, 0): 0, (1, 0): 10, (0, 1): 15, (2, 0): 25, (1, 1): 25, (0, 2): 50, (3, 0): 55, (2, 1): 55,
                           (1, 2): 60, (0, 3): 95, (4, 0): 200}
 
-        discomfort = 0
-        for interval in rain_scores.keys():
-            if interval[0] < weather["rain"] <= interval[1]:
-                discomfort += rain_scores[interval]
-                break
-        for interval in snow_scores.keys():
-            if interval[0] < weather["snow"] <= interval[1]:
-                discomfort += snow_scores[interval]
-                break
-        for interval in wind_scores.keys():
-            if interval[0] < weather["wind"] <= interval[1]:
-                discomfort += wind_scores[interval]
-                break
-        for interval in temp_scores.keys():
-            if interval[0] < weather["temperature"] <= interval[1]:
-                discomfort += temp_scores[interval]
-                break
-        discomfort /= 4.0
         for key in luggage_scores.keys():
             if bags_data == key:
-                discomfort += luggage_scores[tuple]
-                break
-
-        # Discomfort = discomfort_meteo (sur 200) + discomfort_luggage (sur 200)
-        return discomfort
+                return luggage_scores[key]
 
     def display_route(self):
         print " - - - Itinéraire en Velib (recommandé selon vos critères) - - -"

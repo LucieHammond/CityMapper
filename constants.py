@@ -3,12 +3,13 @@
 """ Module répertoriant toutes les constantes partagées """
 
 # Critères de préférences pour un trajet
-FASTEST = "FASTEST"
-SHORTEST = "SHORTEST"
-CHEAPEST = "CHEAPEST"
-EASIEST = "EASIEST"
-NICEST = "NICEST"
-LESS_WALKING = "LESS_WALKING"
+FASTEST = "FAST"  # Le plus rapide (temps total)
+SHORTEST = "SHORT"  # Le plus court (distance totale)
+CHEAPEST = "CHEAP"  # Le moins cher (prix)
+LESS_WALKING = "LESS_WALKING"  # Le moins de marche à pied (temps de marche)
+SIMPLEST = "SIMPLE"  # Le plus simple (moins de changements et correspondances)
+WEATHER_IMPACT = "WEATHER_IMPACT"  # Le plus adapté à la météo (pluie, neige, vent, température)
+LESS_PAINFUL = "LESS_PAINFUL"  # Le plus comfortable par rapport aux bagages transportés
 
 # Types de bagages
 SUITCASE = "SUITCASE"

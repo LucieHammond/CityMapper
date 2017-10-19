@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from constants import FASTEST, SHORTEST, CHEAPEST, EASIEST, NICEST, LESS_WALKING, \
+from constants import FASTEST, SHORTEST, CHEAPEST, LESS_WALKING, SIMPLEST, WEATHER_IMPACT, LESS_PAINFUL, \
     VELIB_NO_SUBSCRIPTION, VELIB_SUBSCRIPTION_30M, VELIB_SUBSCRIPTION_45M, VELIB_TICKETS_30M, \
     AUTOLIB_PRET_A_ROULER, AUTOLIB_PREMIUM, AUTOLIB_FIRST_RENTING_OFFER, \
     SUBWAY_NO_TITLE, SUBWAY_NAVIGO_SUBSCRIPTION, SUBWAY_TICKETS_BOOK, SUBWAY_TICKETS_REDUCED
@@ -32,7 +32,8 @@ class User(object):
 
         # Importance accordée aux différents critères de choix :
         # 0: aucune, 1: faible, 2: mitigée, 3: sérieuse, 4: forte, 5: maximale
-        self._preferences = {FASTEST: 4, SHORTEST: 0, CHEAPEST: 3, EASIEST: 2, NICEST: 5, LESS_WALKING: 1}
+        self._preferences = {FASTEST: 5, SHORTEST: 0, CHEAPEST: 3, LESS_WALKING: 1, SIMPLEST: 2, WEATHER_IMPACT: 6,
+                             LESS_PAINFUL: 4}
 
     @property
     def username(self):
@@ -53,10 +54,10 @@ class User(object):
     @preferences.setter
     def preferences(self, value):
         """ :type value: dict( {critère : note de 0 à 5, ...} ) """
-        if sorted(value.keys()) != [CHEAPEST, EASIEST, FASTEST, LESS_WALKING, NICEST, SHORTEST]:
+        if sorted(value.keys()) != [CHEAPEST, FASTEST, LESS_PAINFUL, LESS_WALKING, SHORTEST, SIMPLEST, WEATHER_IMPACT]:
             raise ValueError
         for val in value.values():
-            if val not in range(0,6):
+            if val not in range(0,7):
                 raise ValueError
         self._preferences = value
 

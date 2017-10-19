@@ -4,6 +4,8 @@ from user import User
 from ride import Ride
 from datetime import date
 
+#todo récupérer les exceptions
+
 
 # Vérifie le type des arguments des fonctions appelables du système
 def check_params(*types):

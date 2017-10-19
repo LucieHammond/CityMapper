@@ -5,8 +5,12 @@ from routes.bicycling import VelibRoute
 from routes.driving import AutolibRoute
 from routes.transit import SubwayRoute
 from core.tasks import TasksManager
-from constants import FASTEST, SHORTEST, CHEAPEST, EASIEST, NICEST, LESS_WALKING, \
+from constants import FASTEST, SHORTEST, CHEAPEST, LESS_WALKING, SIMPLEST, WEATHER_IMPACT, LESS_PAINFUL, \
     SUITCASE, BULKY, BACKPACK, HANDBAG
+from operator import itemgetter
+
+associated_params = {FASTEST: "time", SHORTEST: "distance", CHEAPEST: "price", LESS_WALKING: "walking_time",
+                     SIMPLEST: "transfers_nb", WEATHER_IMPACT: "weather_impact", LESS_PAINFUL: "discomfort"}
 
 
 class Ride(object):
@@ -76,7 +80,7 @@ class Ride(object):
     @preferences.setter
     def preferences(self, value):
         """ :type value: dict( {critère : note de 0 à 5, ...} ) """
-        if sorted(value.keys()) != [CHEAPEST, EASIEST, FASTEST, LESS_WALKING, NICEST, SHORTEST]:
+        if sorted(value.keys()) != [CHEAPEST, FASTEST, LESS_PAINFUL, LESS_WALKING, SHORTEST, SIMPLEST, WEATHER_IMPACT]:
             raise ValueError
         for val in value.values():
             if val not in range(0, 6):
@@ -96,153 +100,125 @@ class Ride(object):
 
     def start_simulation(self):
         """ Calcule les itinéraires possibles en Vélib, Autolib et Transports en commun
+        Si plusieurs modes sont possibles, on lance une comparaison des itinéraires pour les classer
 
-        - Si il y a au plus 1 itinéraire possible compte tenu des données du trajet, affiche le résultat
-        - Sinon, lance une comparaison des itinéraires et affiche celui qui est renvoyé (le meilleur)
+        :return:
+        - La liste ordonnée des itinéraires possibles (compte tenu des préférences de l'utilisateur)
+        - La liste des itinéraires impossibles (objet indiquant le mode de transport et le message à afficher)
 
         """
         possible_routes = list()
+        unsuitable_routes = list()
 
-        if self._is_velib_possible():
+        # Essayer un itinéraire en Vélib
+        unsuitable_msg = self._is_velib_unsuitable()
+        if not unsuitable_msg:
             velib_route = VelibRoute(self)
-            velib_route.calculate_route()
-            possible_routes.append(velib_route)
-        if self._is_autolib_possible():
-            autolib_route = AutolibRoute(self)
-            autolib_route.calculate_route()
-            possible_routes.append(autolib_route)
-        if self._is_transit_possible():
+            if velib_route.calculate_route():
+                possible_routes.append(velib_route)
+            else:
+                unsuitable_msg = "Aucun itinéraire en Vélib n'a pu être trouvé"
+        if unsuitable_msg:
+            unsuitable_routes.append({"mode": "velib", "msg": unsuitable_msg})
+
+
+        # Essayer un itinéraire en transport en commun
+        unsuitable_msg = self._is_transit_unsuitable()
+        if not unsuitable_msg:
             subway_route = SubwayRoute(self)
-            subway_route.calculate_route()
-            possible_routes.append(subway_route)
+            if subway_route.calculate_route():
+                possible_routes.append(subway_route)
+            else:
+                unsuitable_msg = "Aucun itinéraire n'a pu être trouvé avec les transports en commun"
+        if unsuitable_msg:
+            unsuitable_routes.append({"mode": "transit", "msg": unsuitable_msg})
 
-        if len(possible_routes) == 0:
-            return None
-        elif len(possible_routes) == 1:
-            possible_routes[0].display_route()
-            return possible_routes[0]
-        else:
-            scores = self._compute_scores(possible_routes)
-            best_route = self._compare_routes(scores)
-            best_route.display_route()
-            return best_route
+        # Essayer un itinéraire en Autolib
+        unsuitable_msg = self._is_autolib_unsuitable()
+        if not unsuitable_msg:
+            autolib_route = AutolibRoute(self)
+            if autolib_route.calculate_route():
+                possible_routes.append(autolib_route)
+            else:
+                unsuitable_msg = "Aucun itinéraire en Autolib n'a pu être trouvé"
+        if unsuitable_routes:
+            unsuitable_routes.append({"mode": "autolib", "msg": unsuitable_msg})
 
-    def _is_velib_possible(self):
+        if len(possible_routes) <= 1:
+            return possible_routes, unsuitable_routes
+
+        scores = self._compute_scores(possible_routes)
+        ordered_routes = self._compare_routes(scores)
+        return ordered_routes, unsuitable_routes
+
+    def _is_velib_unsuitable(self):
         """ Teste si l'utilisateur n'est pas trop jeune ou avec des bagages trop gros/nombreux pour prendre le Velib """
         nb_luggage = 0
         for item in self._luggage.keys():
             if item in [SUITCASE, BULKY]:
-                return False
-        return nb_luggage <= 4 and self._user.age >= 14
+                return "Vos bagages sont trop gros et encombrants pour vous permettre de prendre le vélib"
+            nb_luggage += 1
+        if nb_luggage > 4:
+            return "Vous avez trop de bagages à porter pour pouvoir vous déplacer en vélib"
+        if self._user.age < 14:
+            return "Vous devez être âgé d'au moins 14 ans pour utiliser un Vélib sans accompagnateur"
+        return None
 
-    def _is_autolib_possible(self):
+    def _is_autolib_unsuitable(self):
         """ Teste si l'utilisateur est en droit de conduire une Autolib """
-        return self._user.age >= 18 and self._user.driving_licence
+        if self._user.age < 18:
+            return "Vous devez être âgé d'au moins 18 ans pour pouvoir conduire une Autolib"
+        if not self._user.driving_licence:
+            return "Vous devez avoir obtenu le permis de conduire pour pouvoir utiliser une Autolib"
+        return None
 
-    def _is_transit_possible(self):
+    def _is_transit_unsuitable(self):
         """ Teste si l'utilisateur n'a pas de bagages trop encombrants pour prendre les transports en commun """
         nb_luggage = 0
         for item in self._luggage.keys():
             if item == BULKY:
-                return False
+                return "Vos bagages sont trop encombrants pour vous permettre de voyager dans les transports en commun"
             nb_luggage += 1
-        return nb_luggage <= 5 and self._user.age >= 7
+        if nb_luggage > 5:
+            return "Vous avez trop de bagages à porter pour vous déplacer aisément en transports en commun"
+        if self._user.age < 6:
+            return "En dessous de 6 ans, vous semblez trop jeune pour prendre seul les transports en commun"
+        return None
 
-    def _compute_scores(self, possible_routes):
+    @staticmethod
+    def _compute_scores(possible_routes):
         """ Calcule pour chaque itinéraire et pour chaque critère un score (float) entre 0 (meilleur) et 1 (moins bon)
 
-        Les 6 critères sont :
-        - le temps total
-        - la distance totale
-        - le prix
-        - le nombre de changements
-        - l'inconfort du trajet (météo mauvaise, charge à porter...)
-        - le temps de marche à pied
         :param possible_routes: liste des itinéraires possibles (de type Route)
-        :return: dictionnaire des scores {route1: {critère1: score1, critère2: note2 ...}, ... }
+        :return: dictionnaire des scores {route1: {critère1: score1, critère2: score2 ...}, ... }
 
         """
 
         scores = dict.fromkeys(possible_routes, {})
 
-        # Scores pour le temps
-        min_time = min([route.time for route in possible_routes])
-        max_time = max([route.time for route in possible_routes])
-        for route in possible_routes:
-            scores[route]["time"] = self._normalize_score(route.time, min_time, max_time)
+        def normalize_score(score, min_score, max_score):
+            return (float(score) - float(min_score)) / (float(max_score) - float(min_score))
 
-        # Score pour la distance
-        min_dist = min([route.distance for route in possible_routes])
-        max_dist = max([route.distance for route in possible_routes])
-        for route in possible_routes:
-            scores[route]["distance"] = self._normalize_score(route.distance, min_dist, max_dist)
-
-        # Score pour le prix
-        min_price = min([route.price for route in possible_routes])
-        max_price = max([route.price for route in possible_routes])
-        for route in possible_routes:
-            scores[route]["price"] = self._normalize_score(route.price, min_price, max_price)
-
-        # Score pour le nombre de changements
-        min_transfers = min([route.transfers_nb for route in possible_routes])
-        max_transfers = max([route.transfers_nb for route in possible_routes])
-        for route in possible_routes:
-            scores[route]["transfers"] = self._normalize_score(route.transfers_nb, min_transfers, max_transfers)
-
-        # Score pour l'inconfort
-        min_discomfort = min([route.discomfort for route in possible_routes])
-        max_discomfort = max([route.discomfort for route in possible_routes])
-        for route in possible_routes:
-            scores[route]["discomfort"] = self._normalize_score(route.discomfort, min_discomfort, max_discomfort)
-
-        # Score pour le temps de marche à pied
-        min_walking = min([route.walking_time for route in possible_routes])
-        max_walking = max([route.walking_time for route in possible_routes])
-        for route in possible_routes:
-            scores[route]["walking"] = self._normalize_score(route.walking_time, min_walking, max_walking)
+        for param in associated_params.values():
+            min_value = min([route.__getattribute__(param) for route in possible_routes])
+            max_value = max([route.__getattribute__(param) for route in possible_routes])
+            for route in possible_routes:
+                scores[route][param] = normalize_score(route.__getattribute__(param), min_value, max_value)
 
         return scores
 
-    @staticmethod
-    def _normalize_score(score, min_score, max_score):
-        return (float(score) - float(min_score)) / (float(max_score) - float(min_score))
-
-    def _compare_routes(self, scores, retry_nb=0):
+    def _compare_routes(self, scores):
         """ Compare les différents itinéraires en pondérant chacun de leurs scores par le coefficient de préférence
             associé au critère sur lequel porte le score
 
-        NB: Si plusieurs itinéraires obtiennenent des notes pondérées identiques, on recommence en changeant légèrement
-        les préférences (un critère modifié à la fois, dans l'ordre des choix par défault)
-
-        :return: le meilleur itinéraire (de type Route) compte tenu des préférences de l'utilisateur
+        :param scores: Un dictionnaire qui associe à chaque itinéraire des scores pour tous les critères
+        :return: la liste ordonnée des itinéraires possibles compte tenu des préférences de l'utilisateur
 
         """
 
-        # Compute global grade
-        best_grade = -1
-        best_routes = list()
         preferences = self._user.preferences
-        if retry_nb > 0:
-            pref_to_change = [NICEST, FASTEST, CHEAPEST, EASIEST, LESS_WALKING, SHORTEST][retry_nb - 1]
-            preferences[pref_to_change] += 1
         for route, score in scores.items():
-            grade = 0
-            grade += preferences[FASTEST] * score["time"]
-            grade += preferences[SHORTEST] * score["distance"]
-            grade += preferences[CHEAPEST] * score["price"]
-            grade += preferences[EASIEST] * score["transfers"]
-            grade += preferences[NICEST] * score["discomfort"]
-            grade += preferences[LESS_WALKING] * score["walking"]
+            grade = sum([preferences[criteria] * score[param] for criteria, param in associated_params.items()])
             scores[route]["grade"] = grade
 
-            if best_grade == -1 or grade < best_grade:
-                best_grade = grade
-                best_routes = list([route])
-            elif grade == best_grade:
-                best_routes.append(route)
-
-        if len(best_routes) == 1 or retry_nb == 6:
-            return best_routes[0]
-        else:
-            new_scores = {route: scores[route] for route in best_routes}
-            return self._compare_routes(new_scores, retry_nb + 1)
+        return sorted(scores.keys(), key=itemgetter("grade"))

@@ -71,7 +71,9 @@ class InvalidReplyError(Exception):
 
 
 class ApiCallError(Exception):
-    pass
+    def __str__(self):
+        return "Une erreur s'est produite au moment de récupérer les données.\n" \
+               "Essayez de relancer le système ou contactez le support technique"
 
 
 class ParamNotFoundError(Exception):
