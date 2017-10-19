@@ -10,7 +10,7 @@ from constants import FASTEST, SHORTEST, CHEAPEST, LESS_WALKING, SIMPLEST, WEATH
 from operator import itemgetter
 
 associated_params = {FASTEST: "time", SHORTEST: "distance", CHEAPEST: "price", LESS_WALKING: "walking_time",
-                     SIMPLEST: "transfers_nb", WEATHER_IMPACT: "weather_impact", LESS_PAINFUL: "discomfort"}
+                     SIMPLEST: "transfers_nb", WEATHER_IMPACT: "weather_impact", LESS_PAINFUL: "difficulty"}
 
 
 class Ride(object):
@@ -196,14 +196,22 @@ class Ride(object):
 
         scores = dict.fromkeys(possible_routes, {})
 
-        def normalize_score(score, min_score, max_score):
-            return (float(score) - float(min_score)) / (float(max_score) - float(min_score))
+        # Les scores sont ramenés sur une échelle comparable
+        def normalize_score(score, ref_mini, ref_maxi):
+            return (float(score) - float(ref_mini)) / (float(ref_maxi) - float(ref_mini))
+
+        ref_min = dict({"price": 0, "transfers_nb": 2, "luggage": 0, "weather_impact": 0})
+        ref_max = dict({"price": 5, "transfers_nb": 4, "luggage": 100, "weather_impact": 100})
+        ref_min["time"] = min([route.time for route in possible_routes])
+        ref_min["distance"] = min([route.distance for route in possible_routes])
+        ref_min["walking_time"] = min([route.walking_time for route in possible_routes])
+        ref_max["time"] = 1.4 * ref_min["time"]
+        ref_max["distance"] = 1.4 * ref_min["distance"]
+        ref_max["walking_time"] = 1.4 * ref_min["walking_time"]
 
         for param in associated_params.values():
-            min_value = min([route.__getattribute__(param) for route in possible_routes])
-            max_value = max([route.__getattribute__(param) for route in possible_routes])
             for route in possible_routes:
-                scores[route][param] = normalize_score(route.__getattribute__(param), min_value, max_value)
+                scores[route][param] = normalize_score(route.__getattribute__(param), ref_min[param], ref_max[param])
 
         return scores
 

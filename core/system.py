@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from user import User
+from user import User, IncoherentDateError
 from ride import Ride
 from datetime import date
 
@@ -29,9 +29,13 @@ class HowToGoSystem(object):
 
     @check_params(object, str, str, date)
     def sign_up(self, username, password, birthdate):
-        new_user = User(username, password, birthdate)
-        self._current_user = new_user
-        self._users.append(new_user)
+        try:
+            new_user = User(username, password, birthdate)
+        except IncoherentDateError as e:
+            print(e)
+        else:
+            self._current_user = new_user
+            self._users.append(new_user)
 
     @check_params(object, str, str)
     def sign_in(self, username, password):
@@ -96,7 +100,7 @@ class HowToGoSystem(object):
 
     @check_params(object)
     def start_calculation(self):
-        self._current_ride.start_simulation()
+        possible_routes, unsuitable_routes = self._current_ride.start_simulation()
 
     def display_users(self):
         for user in self._users:

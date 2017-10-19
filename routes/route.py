@@ -104,8 +104,8 @@ class Route(object):
                 impact += temp_scores[interval]
                 break
 
-        # L'impact global sera proportionnel au temps passé dehors
-        time_outside = (self._modes_breakdown[WALKING_MODE] + self._modes_breakdown[BICYCLING_MODE])/3600.0
+        # L'impact global sera proportionnel au temps passé dehors (unité standard = pour 20 min dehors)
+        time_outside = (self._modes_breakdown[WALKING_MODE] + self._modes_breakdown[BICYCLING_MODE])/1200.0
         return impact * time_outside
 
     def _compute_difficulty(self):

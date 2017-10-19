@@ -15,7 +15,7 @@ class Directions(ApiManager):
         default_settings = {"key": API_KEY}
         ApiManager.__init__(self, GMAP_API_URL, default_settings)
 
-    def get_from_api(self, origin, destination, mode, departure_time=time.time()):
+    def get_from_api(self, origin, destination, mode, departure_time=time.time(), routing_preference=None):
         """" Renvoie le détail du plus court trajet trouvé grâce
 
         :param origin: position du départ (latitude, longitude)
@@ -30,6 +30,8 @@ class Directions(ApiManager):
         params["mode"] = mode
         if mode == TRANSIT_MODE:
             params["departure_time"] = int(departure_time)
+            if routing_preference:
+                params["transit_routing_preference"] = routing_preference
 
         response = self._call_api(params)
         transit_ride = (mode == TRANSIT_MODE)
@@ -51,7 +53,7 @@ class Directions(ApiManager):
         Dans le cas d'un trajet avec transit (transit_ride = True):
         :return:
         { main : {distance en m, temps en s}
-        steps : [{mode, distance, temps, détails (si portion de parcours en métro)} pour chaque étape]
+        steps : [{mode, distance, temps, details (si portion de parcours en métro)} pour chaque étape]
 
         """
         route = response["routes"][0]["legs"][0]
@@ -67,7 +69,7 @@ class Directions(ApiManager):
         steps = list()
 
         for step in route["steps"]:
-            next_step = dict({"mode": step["travel_mode"]})
+            next_step = dict({"mode": step["travel_mode"].lower()})
             next_step["dist"] = step["distance"]["value"]
             next_step["time"] = step["duration"]["value"]
 
@@ -91,3 +93,8 @@ class Directions(ApiManager):
 
         data["steps"] = steps
         return data
+
+if __name__ == "__main__":
+    directions = Directions()
+    result = directions.get_from_api((48.832457, 2.327197), (48.859118, 2.369082), TRANSIT_MODE, time.time())
+    print result

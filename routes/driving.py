@@ -30,7 +30,7 @@ class AutolibRoute(Route):
     def calculate_route(self):
         """ Calcule l'itinéraire exact le plus adapté aux préférences de l'utilisateur
 
-        Le calcul se fait grâce aux données récupérées depuis les APIs Open Data Velib et Google Map
+        Le calcul se fait grâce aux données récupérées depuis les APIs Open Data Autolib et Google Map
         Met à jour les paramêtres de l'objet (initialisés à None pour la plupart) avec l'itinéraire calculé
         """
 
