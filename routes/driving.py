@@ -197,9 +197,9 @@ class AutolibRoute(Route):
             time_autolib = max([0, time_autolib - 30 * 60])
 
         if subscription in [AUTOLIB_PRET_A_ROULER, AUTOLIB_FIRST_RENTING_OFFER]:
-            return time_autolib / 60.0 * 0.32
+            return round(time_autolib / 60.0 * 0.3166, 2)
         elif subscription == AUTOLIB_PREMIUM:
-            return time_autolib / 60.0 * 0.23
+            return round(time_autolib / 60.0 * 0.2333, 2)
 
     def _compute_difficulty(self):
         """ Le degré d'inconfort lié aux bagages est nul pour un trajet en voiture """

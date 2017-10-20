@@ -19,7 +19,7 @@ class TasksTest(unittest.TestCase):
         self.assertEqual(worker.get_result(), 5)
 
         def long_add(a, b):
-            time.sleep(15)  # This test will be long to run
+            time.sleep(13)  # This test will be long to run
             return a + b
 
         worker2 = Worker(long_add, (4, 5))
@@ -41,3 +41,6 @@ class TasksTest(unittest.TestCase):
         tm.new_task(task, (3, 4))
         tm.new_task(task, (1, 3))
         self.assertEqual(tm.results_list(), [2, 7, 4])
+
+if __name__ == "__main__":
+    unittest.main()

@@ -23,7 +23,7 @@ class RideTest(unittest.TestCase):
     def test_constructor(self):
 
         self.assertEqual(self.ride.travellers, 1)
-        self.assertEqual(len(self.ride.luggage), 0)
+        self.assertEqual(len(self.ride.luggage.keys()), 0)
         self.assertEqual(self.ride.user, self.user)
         self.assertEqual(self.ride.preferences, self.user.preferences)
         self.assertAlmostEqual(self.ride.departure_time, time.time(), -1)

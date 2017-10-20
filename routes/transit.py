@@ -98,6 +98,32 @@ class SubwayRoute(Route):
 
         return best_criterion
 
+    def _optimize_route(self, search_criterion):
+        """  Renvoie le meilleur itinéraire suivant le critère d'optimisation passé en paramêtre """
+
+        directions = Directions()
+        ride = self._ride
+        tm = TasksManager()
+
+        if search_criterion in [LESS_WALKING, SIMPLEST]:
+            routing_pref = {LESS_WALKING: "less_walking", SIMPLEST: "fewer_transfers"}[search_criterion]
+            tm.new_task(target=directions.get_from_api,
+                        args=(ride.start, ride.end, TRANSIT_MODE, ride.departure_time, routing_pref))
+            return tm.next_result()
+
+        elif search_criterion == FASTEST:
+            for routing_pref in [None, "less_walking", "fewer_transfers"]:
+                tm.new_task(target=directions.get_from_api,
+                            args=(ride.start, ride.end, TRANSIT_MODE, ride.departure_time, routing_pref))
+            routes = tm.results_list()
+            best_route = None
+            best_time = -1
+            for route in routes:
+                if best_time == -1 or route.time < best_time:
+                    best_time = route.time
+                    best_route = route
+            return best_route
+
     def _compute_price(self):
         """ Calcule le prix exact de l'itinéraire finalement choisi """
 
@@ -108,9 +134,9 @@ class SubwayRoute(Route):
         if subscription == SUBWAY_NAVIGO_SUBSCRIPTION:
             return 0
         elif subscription == SUBWAY_TICKETS_BOOK:
-            return TEN_TICKETS_PRICE / 10.0
+            return round(TEN_TICKETS_PRICE / 10.0, 2)
         elif subscription == SUBWAY_TICKETS_REDUCED:
-            return TEN_TICKETS_REDUCED_PRICE / 10.0
+            return round(TEN_TICKETS_REDUCED_PRICE / 10.0, 2)
         else:
             return ONE_TICKET_PRICE
 
@@ -128,6 +154,6 @@ class SubwayRoute(Route):
         # Définition d'un barême approximatif qui traduit de degré d'inconfort ressenti (sur une échelle de 0 à 200)
         luggage_scores = {BACKPACK: 10, HANDBAG: 10, SUITCASE: 50}
         difficulty = sum([luggage_scores[bag] * nb for bag, nb in luggage.items()])
-        difficulty += 10 * max([0, nb_bags - 1])
+        difficulty += 5 * max([0, nb_bags - 1])
 
         return difficulty

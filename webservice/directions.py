@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import time
-from api_manager import ApiManager, ParamNotFoundError
+from api_manager import ApiManager, ParamNotFoundError, ApiCallError
 from constants import TRANSIT_MODE
 
 GMAP_API_URL = "https://maps.googleapis.com/maps/api/directions/json"
@@ -22,6 +22,7 @@ class Directions(ApiManager):
         :param destination: position de l'arrivée (latitude, longitude)
         :param mode: mode de déplacement
         :param departure_time: moment du départ (utilisable uniquement pour des trajets en métro)
+        :param routing_preference: préférence des itinéraires en transports en commun (par défault le plus rapide)
 
         """
         params = dict()
@@ -56,6 +57,9 @@ class Directions(ApiManager):
         steps : [{mode, distance, temps, details (si portion de parcours en métro)} pour chaque étape]
 
         """
+        if len(response["routes"]) == 0:
+            print "Over query limite : vous avez dépassé votre quotas journalier de requêtes vers cette API"
+            raise ApiCallError
         route = response["routes"][0]["legs"][0]
 
         main = dict()
@@ -93,8 +97,3 @@ class Directions(ApiManager):
 
         data["steps"] = steps
         return data
-
-if __name__ == "__main__":
-    directions = Directions()
-    result = directions.get_from_api((48.832457, 2.327197), (48.859118, 2.369082), TRANSIT_MODE, time.time())
-    print result

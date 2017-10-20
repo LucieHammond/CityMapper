@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import requests
-from threading import Thread
 
 
 class ApiManager(object):

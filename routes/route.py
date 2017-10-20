@@ -16,7 +16,7 @@ class Route(object):
         self._transfers_nb = None
         self._walking_time = None
         self._weather_impact = None
-        self._discomfort = None
+        self._difficulty = None
 
     @property
     def steps(self):
@@ -81,8 +81,8 @@ class Route(object):
         # Key = (veleur min exclue, valeur max inclue)
         rain_scores = {(-1, 0): -20, (0, 1): 30, (1, 5): 50, (5, 20): 80, (20, 50): 120, (50, 500): 200}
         snow_scores = {(-1, 0): 0, (0, 2): 40, (2, 4): 60, (4, 8): 80, (8, 30): 100, (30, 300): 200}
-        wind_scores = {(-1, 0.5): 0, (0.5, 3): 15, (3, 8): 30, (8, 14): 45, (14, 20): 60, (20, 24): 75, (24, 28): 90,
-                       (28, 33): 120, (33, 200): 200}
+        wind_scores = {(-1, 0.5): 0, (0.5, 3): 5, (3, 8): 15, (8, 14): 30, (14, 20): 50, (20, 24): 75, (24, 28): 105,
+                       (28, 33): 140, (33, 200): 200}
         temp_scores = {(-273, -10): 200, (-10, 0): 120, (0, 10): 50, (10, 20): 10, (20, 30): -10, (30, 40): 10,
                        (40, 50): 60, (50, 60): 160, (60, 150): 200}
 
@@ -105,7 +105,8 @@ class Route(object):
                 break
 
         # L'impact global sera proportionnel au temps passé dehors (unité standard = pour 20 min dehors)
-        time_outside = (self._modes_breakdown[WALKING_MODE] + self._modes_breakdown[BICYCLING_MODE])/1200.0
+        bicycling_time = self._modes_breakdown[BICYCLING_MODE] if BICYCLING_MODE in self._modes_breakdown.keys() else 0
+        time_outside = (self.walking_time + bicycling_time)/1200.0
         return impact * time_outside
 
     def _compute_difficulty(self):

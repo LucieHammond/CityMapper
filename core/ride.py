@@ -8,6 +8,7 @@ from core.tasks import TasksManager
 from constants import FASTEST, SHORTEST, CHEAPEST, LESS_WALKING, SIMPLEST, WEATHER_IMPACT, LESS_PAINFUL, \
     SUITCASE, BULKY, BACKPACK, HANDBAG
 from operator import itemgetter
+import time
 
 associated_params = {FASTEST: "time", SHORTEST: "distance", CHEAPEST: "price", LESS_WALKING: "walking_time",
                      SIMPLEST: "transfers_nb", WEATHER_IMPACT: "weather_impact", LESS_PAINFUL: "difficulty"}
@@ -17,6 +18,10 @@ class Ride(object):
     """ Trajet demandé par l'utilisateur, pour lequel on va calculer plusieurs itinéraires possibles """
 
     def __init__(self, user, start, end, departure_time):
+        if departure_time < time.time():
+            raise ValueError("Date de départ invalide : {}. \n"
+                             "Le moment du départ ne peut pas antérieur à la date actuelle".format(departure_time))
+
         self._user = user
         self._start = start
         self._end = end
@@ -83,7 +88,7 @@ class Ride(object):
         if sorted(value.keys()) != [CHEAPEST, FASTEST, LESS_PAINFUL, LESS_WALKING, SHORTEST, SIMPLEST, WEATHER_IMPACT]:
             raise ValueError
         for val in value.values():
-            if val not in range(0, 6):
+            if val not in range(0, 7):
                 raise ValueError
         self._preferences = value
 

@@ -16,7 +16,8 @@ class User(object):
 
     def __init__(self, username, password, birthdate):
         if birthdate > date.today():
-            raise IncoherentDateError(birthdate)
+            raise ValueError("Date de naissance invalide : {}. \n"
+                             "Votre date de naissance ne peut pas être supérieure à la date actuelle".format(birthdate))
 
         User.total_users += 1
         self._id = User.total_users
@@ -95,12 +96,3 @@ class User(object):
             for preference, value in self._preferences.items():
                 print " - {} : {}".format(preference, str(value))
             print "Permis de conduire : {}\n".format("Oui" if self._driving_licence else "Non")
-
-
-class IncoherentDateError(ValueError):
-
-    def __init__(self, param):
-        self._date = param
-
-    def __str__(self):
-        return "Invalid date {}. The date should be past and not future".format(self._date)

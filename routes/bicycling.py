@@ -239,10 +239,11 @@ class VelibRoute(Route):
         if bonus:
             # Les stations bonus font gagner 15 min, reportables si abonnement (soit 0.5€ la première demi-heure extra)
             if extra_time > 0:
-                extra_time -= 15
+                extra_time -= 15*60
             elif subscription in [VELIB_SUBSCRIPTION_45M, VELIB_SUBSCRIPTION_30M]:
                 price -= 0.5
 
+        extra_time /= 60.0  # Mettre en minutes
         if extra_time > 0:
             price += 1
         if extra_time > 30:
@@ -261,7 +262,9 @@ class VelibRoute(Route):
         # Vérifier que les bagages du voyageur sont bien compatible avec l'exercice du vélo
         for bag in luggage.keys():
             assert bag in [HANDBAG, BACKPACK]
-        bags_data = (luggage[BACKPACK], luggage[HANDBAG]) if luggage[BACKPACK] + luggage[HANDBAG] < 4 else (4, 0)
+        backpacks = luggage[BACKPACK] if BACKPACK in luggage.keys() else 0
+        handbags = luggage[HANDBAG] if HANDBAG in luggage.keys() else 0
+        bags_data = (backpacks, handbags) if backpacks + handbags < 4 else (4, 0)
 
         # Définition d'un barême approximatif qui traduit de degré d'inconfort ressenti (sur une échelle de 0 à 200)
         # Key = (nombre de sacs à dos, nombre de sacs à main)

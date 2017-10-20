@@ -4,7 +4,7 @@ from stations import Stations
 from api_manager import ParamNotFoundError
 
 AUTOLIB_STATIONS = 1014  # 1014 stations Autolib
-SEEKING_DIST = 1000  # On cherche des stations à moins d'1km
+SEEKING_DIST = 1300  # On cherche des stations à moins d'1.3km
 
 
 class Autolib(Stations):

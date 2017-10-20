@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-from core.user import User, IncoherentDateError
-from constants import FASTEST, SHORTEST, CHEAPEST, EASIEST, NICEST, LESS_WALKING, \
+from core.user import User
+from constants import FASTEST, SHORTEST, CHEAPEST, SIMPLEST, LESS_PAINFUL, WEATHER_IMPACT, LESS_WALKING, \
     VELIB_NO_SUBSCRIPTION, VELIB_SUBSCRIPTION_30M, \
     AUTOLIB_PRET_A_ROULER, AUTOLIB_PREMIUM, \
     SUBWAY_NO_TITLE, SUBWAY_NAVIGO_SUBSCRIPTION
@@ -19,7 +19,7 @@ class UserTest(unittest.TestCase):
 
     def test_constructor(self):
 
-        with self.assertRaises(IncoherentDateError):
+        with self.assertRaises(ValueError):
             User("user1", "00000", date.today() + timedelta(days=1))
 
         username = "user2"
@@ -36,9 +36,10 @@ class UserTest(unittest.TestCase):
         self.assertEqual(user_2.subscriptions["subway"], SUBWAY_NO_TITLE)
         self.assertTrue(user_2.driving_licence)
 
-        self.assertEqual(sorted(user_2.preferences.keys()), [CHEAPEST, EASIEST, FASTEST, LESS_WALKING, NICEST, SHORTEST])
+        self.assertEqual(sorted(user_2.preferences.keys()),
+                         [CHEAPEST, FASTEST, LESS_PAINFUL, LESS_WALKING, SHORTEST, SIMPLEST, WEATHER_IMPACT])
         for value in user_2.preferences.values():
-            self.assertIn(value, range(0,6))
+            self.assertIn(value, range(0,7))
 
     def test_subscriptions(self):
 
@@ -60,7 +61,11 @@ class UserTest(unittest.TestCase):
             user_4.preferences = {FASTEST: 4, SHORTEST: 0}
 
         with self.assertRaises(ValueError):
-            user_4.preferences = {FASTEST: 4, SHORTEST: 0, CHEAPEST: 3, EASIEST: 2, "OTHER": 5, LESS_WALKING: 1}
+            user_4.preferences = {FASTEST: 4, SHORTEST: 0, CHEAPEST: 3, SIMPLEST: 2, "OTHER": 5, LESS_WALKING: 1}
 
         with self.assertRaises(ValueError):
-            user_4.preferences = {FASTEST: 12, SHORTEST: -2, CHEAPEST: 7, EASIEST: 5, NICEST: 23, LESS_WALKING: 0}
+            user_4.preferences = {FASTEST: 12, SHORTEST: -2, CHEAPEST: 7, SIMPLEST: 5, WEATHER_IMPACT: 8,
+                                  LESS_PAINFUL: 23, LESS_WALKING: 0}
+
+if __name__ == "__main__":
+    unittest.main()

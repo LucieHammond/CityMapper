@@ -4,7 +4,7 @@ from stations import Stations
 from api_manager import ParamNotFoundError
 
 VELIB_STATIONS = 1122  # 1122 stations Velib
-SEEKING_DIST = 800  # On cherche des stations à moins de 800m
+SEEKING_DIST = 900  # On cherche des stations à moins de 900m
 
 
 class Velib(Stations):
@@ -43,5 +43,5 @@ class Velib(Stations):
 
         else:
             for station in best_stations:
-                station["bonus"] = bool(station["bonus"])
+                station["bonus"] = station["bonus"] == 'True'
             return best_stations
