@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from route import Route
+from routes.route import Route
 from webservice.velib import Velib
 from webservice.directions import Directions, WALKING_MODE, BICYCLING_MODE
 import time
@@ -81,7 +81,7 @@ class VelibRoute(Route):
         self._modes_breakdown = {WALKING_MODE: self._steps[0]["time"] + self._steps[2]["time"],
                                  BICYCLING_MODE: self._steps[1]["time"]}
 
-from core.ride import Ride
+'''from core.ride import Ride
 
 start = (48.836239, 2.242632)
 end = (48.839659, 2.290922)
@@ -89,12 +89,12 @@ end = (48.839659, 2.290922)
 ride = Ride(start, end, time.time() + 25000)
 
 velib_route = VelibRoute(ride)
-print velib_route._start_station
-print velib_route._end_station
-print velib_route._steps
-print velib_route._time
-print velib_route._distance
-print velib_route._modes_breakdown
+print(velib_route._start_station)
+print(velib_route._end_station)
+print(velib_route._steps)
+print(velib_route._time)
+print(velib_route._distance)
+print(velib_route._modes_breakdown)'''
 
 
 

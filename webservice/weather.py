@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import time
-from api_manager import ApiManager, ParamNotFoundError
+from webservice.api_manager import ApiManager, ParamNotFoundError
 
 OPENWEATHER_API_URL = "https://api.openweathermap.org/data/2.5/forecast"
 API_KEY = "7ca1bf686720bb911d4ebfabaf550fac"

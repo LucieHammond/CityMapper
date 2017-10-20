@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import time
-from route import Route
+from routes.route import Route
 from webservice.autolib import Autolib
 from webservice.directions import Directions, WALKING_MODE, DRIVING_MODE
 
@@ -72,7 +72,7 @@ class AutolibRoute(Route):
         self._modes_breakdown = {WALKING_MODE: self._steps[0]["time"] + self._steps[2]["time"],
                                  DRIVING_MODE: self._steps[1]["time"]}
 
-from core.ride import Ride
+'''from core.ride import Ride
 
 start = (48.836239, 2.242632)
 end = (48.839659, 2.290922)
@@ -85,4 +85,4 @@ print(autolib_route._end_station)
 print(autolib_route._steps)
 print(autolib_route._time)
 print(autolib_route._distance)
-print(autolib_route._modes_breakdown)
+print(autolib_route._modes_breakdown)'''

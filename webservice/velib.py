@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from stations import Stations
-from api_manager import ParamNotFoundError
+from webservice.stations import Stations
+from webservice.api_manager import ParamNotFoundError
 
 VELIB_STATIONS = 1122  # 1122 stations Velib
 SEEKING_DIST = 800  # On cherche des stations à moins de 800m

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from stations import Stations
-from api_manager import ParamNotFoundError
+from webservice.stations import Stations
+from webservice.api_manager import ParamNotFoundError
 
 AUTOLIB_STATIONS = 1014  # 1014 stations Autolib
 SEEKING_DIST = 1000  # On cherche des stations à moins d'1km
@@ -36,7 +36,7 @@ class Autolib(Stations):
             if is_start:
                 best_stations = self._parse_response(response, "cars", real_time)
             else:
-                best_stations = self._parse_response(response, "slots", real_time)
+                best_stations = self._parse_response(response, "charge_slots", real_time)
 
         except KeyError as e:
             raise ParamNotFoundError(e.message)

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from api_manager import ApiManager
+from webservice.api_manager import ApiManager
 from datetime import datetime, timedelta
 
 OPENDATA_API_URL = "https://opendata.paris.fr/api/records/1.0/search/"

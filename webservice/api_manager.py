@@ -35,15 +35,15 @@ class ApiManager:
                 data = result.json()
 
         except requests.RequestException as e:
-            print "Error while trying to call API.\n{}".format(e.message)
+            print("Error while trying to call API.\n{}".format(e.message))
             raise ApiCallError
 
         except InvalidReplyError as e:
-            print "Incorrect reply : {}".format(e)
+            print("Incorrect reply : {}".format(e))
             raise ApiCallError
 
         except Exception as e:
-            print "Error while recovering response from API.\n{}".format(e.message)
+            print("Error while recovering response from API.\n{}".format(e.message))
             raise ApiCallError
 
         else:
