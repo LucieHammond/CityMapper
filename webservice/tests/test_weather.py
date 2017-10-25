@@ -23,6 +23,3 @@ class WeatherTest(unittest.TestCase):
 
         data2 = data = weather.get_from_api(time.time())
         self.assertEqual(data, data2)
-
-if __name__ == "__main__":
-    unittest.main()

@@ -41,6 +41,3 @@ class TasksTest(unittest.TestCase):
         tm.new_task(task, (3, 4))
         tm.new_task(task, (1, 3))
         self.assertEqual(tm.results_list(), [2, 7, 4])
-
-if __name__ == "__main__":
-    unittest.main()

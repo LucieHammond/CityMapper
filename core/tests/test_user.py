@@ -66,6 +66,3 @@ class UserTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             user_4.preferences = {FASTEST: 12, SHORTEST: -2, CHEAPEST: 7, SIMPLEST: 5, WEATHER_IMPACT: 8,
                                   LESS_PAINFUL: 23, LESS_WALKING: 0}
-
-if __name__ == "__main__":
-    unittest.main()

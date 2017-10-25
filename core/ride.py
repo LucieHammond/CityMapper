@@ -88,7 +88,7 @@ class Ride(object):
         if sorted(value.keys()) != [CHEAPEST, FASTEST, LESS_PAINFUL, LESS_WALKING, SHORTEST, SIMPLEST, WEATHER_IMPACT]:
             raise ValueError
         for val in value.values():
-            if val not in range(0, 7):
+            if val not in range(0, 6):
                 raise ValueError
         self._preferences = value
 

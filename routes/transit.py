@@ -31,12 +31,7 @@ class SubwayRoute(Route):
 
         # Critères de préférence pour la différentiation des itinéraires similaires
         search_criterion = self._define_search_criteria()
-        routing_pref = {FASTEST: None, LESS_WALKING: "less_walking", SIMPLEST: "fewer_transfers"}[search_criterion]
-
-        tm = TasksManager()
-        tm.new_task(target=directions.get_from_api,
-                    args=(ride.start, ride.end, TRANSIT_MODE, ride.departure_time, routing_pref))
-        route = tm.next_result()
+        route = self._optimize_route(search_criterion)
 
         # On peut maintenant définir les caractéristiques de la route trouvée
         self._time = route["main"]["time"]

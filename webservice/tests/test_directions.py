@@ -41,6 +41,3 @@ class WeatherTest(unittest.TestCase):
         time_steps = sum([step["time"] for step in data_transit_day["steps"]])
         self.assertEqual(dist_steps, data_transit_day["main"]["dist"])
         self.assertLessEqual(time_steps, data_transit_day["main"]["time"])
-
-if __name__ == "__main__":
-    unittest.main()

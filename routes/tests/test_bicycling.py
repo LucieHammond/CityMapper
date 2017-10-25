@@ -98,6 +98,3 @@ class VelibRouteTest(unittest.TestCase):
         self.route = VelibRoute(self.ride)
         self.route.calculate_route()
         self.assertEqual(self.route.difficulty, 25)
-
-if __name__ == "__main__":
-    unittest.main()

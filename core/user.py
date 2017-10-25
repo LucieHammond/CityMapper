@@ -33,7 +33,7 @@ class User(object):
 
         # Importance accordée aux différents critères de choix :
         # 0: aucune, 1: faible, 2: mitigée, 3: sérieuse, 4: forte, 5: maximale
-        self._preferences = {FASTEST: 5, SHORTEST: 0, CHEAPEST: 3, LESS_WALKING: 1, SIMPLEST: 2, WEATHER_IMPACT: 6,
+        self._preferences = {FASTEST: 5, SHORTEST: 0, CHEAPEST: 3, LESS_WALKING: 1, SIMPLEST: 2, WEATHER_IMPACT: 4,
                              LESS_PAINFUL: 4}
 
     @property
@@ -58,7 +58,7 @@ class User(object):
         if sorted(value.keys()) != [CHEAPEST, FASTEST, LESS_PAINFUL, LESS_WALKING, SHORTEST, SIMPLEST, WEATHER_IMPACT]:
             raise ValueError
         for val in value.values():
-            if val not in range(0,7):
+            if val not in range(0,6):
                 raise ValueError
         self._preferences = value
 

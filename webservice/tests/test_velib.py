@@ -26,6 +26,3 @@ class WeatherTest(unittest.TestCase):
         self.assertIsInstance(data_start[0]["bonus"], bool)
         self.assertGreater(data_start[0]["places"], 0)
         self.assertGreater(data_end[0]["places"], 0)
-
-if __name__ == "__main__":
-    unittest.main()

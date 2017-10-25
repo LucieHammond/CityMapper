@@ -85,6 +85,3 @@ class AutolibRouteTest(unittest.TestCase):
 
     def test_difficulty(self):
         self.assertEqual(self.route.difficulty, 0)
-
-if __name__ == "__main__":
-    unittest.main()

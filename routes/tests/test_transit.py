@@ -92,6 +92,3 @@ class TransitRouteTest(unittest.TestCase):
         self.route = SubwayRoute(self.ride)
         self.route.calculate_route()
         self.assertEqual(self.route.difficulty, 65)
-
-if __name__ == "__main__":
-    unittest.main()
