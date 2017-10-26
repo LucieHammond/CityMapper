@@ -27,17 +27,22 @@ class Weather(ApiManager):
         :rtype: dict
 
         """
-        response = self._call_api()
 
         data = dict()
         try:
+            response = self._call_api()
             # On prend la prévision la plus proche dans le temps
             record = sorted(response["list"], key=lambda elem: abs(timestamp - elem["dt"]))[0]
             data["temperature"] = round(record["main"]["temp"] - 273.15, 2)  # Conversion Kelvin -> Celsius
             data["rain"] = record["rain"]["3h"] if "rain" in record and "3h" in record["rain"].keys() else 0.0
             data["wind"] = record["wind"]["speed"] if "wind" in record else 0.0
             data["snow"] = record["snow"]["3h"] if "snow" in record and "3h" in record["snow"].keys() else 0.0
+
         except KeyError as e:
-            raise ParamNotFoundError(e.message)
+            return ParamNotFoundError(e.message)
+
+        except Exception as error:
+            return error
+
         else:
             return data

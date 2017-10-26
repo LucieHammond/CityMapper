@@ -19,14 +19,18 @@ class Geocode(ApiManager):
         params=dict()
         params["address"] = address
 
-        response = self._call_api(params)
-        if response["status"] == ZERO_RESULTS:
-            raise ZeroResultsError(address)
-
         try:
+            response = self._call_api(params)
+            if response["status"] == ZERO_RESULTS:
+                raise ZeroResultsError(address)
             data = self._parse_response(response)
+
         except KeyError as e:
-            raise ParamNotFoundError(e)
+            return ParamNotFoundError(e.message)
+
+        except Exception as error:
+            return error
+
         else:
             return data
 

@@ -36,15 +36,15 @@ class ApiManager(object):
 
         except requests.RequestException as e:
             print "Error while trying to call API.\n{}".format(e.message)
-            raise ApiCallError
+            raise ApiCallError()
 
         except InvalidReplyError as e:
             print "Incorrect reply : {}".format(e)
-            raise ApiCallError
+            raise ApiCallError()
 
         except Exception as e:
             print "Error while recovering response from API.\n{}".format(e.message)
-            raise ApiCallError
+            raise ApiCallError()
 
         else:
             return data
@@ -72,7 +72,7 @@ class InvalidReplyError(Exception):
 class ApiCallError(Exception):
     def __str__(self):
         return "Une erreur s'est produite au moment de récupérer les données.\n" \
-               "Essayez de relancer le système ou contactez le support technique"
+               "Vérifiez votre connexion à Internet ou relancez le système"
 
 
 class ParamNotFoundError(Exception):

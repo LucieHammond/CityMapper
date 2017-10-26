@@ -40,13 +40,17 @@ class RideSettingsPage(Frame):
     def init_parameters(self):
         if self._system.current_ride:
             ride = self._system.current_ride
-            print ride.start[0], ride.start[1]
-            self._start.set('$ %d,%d' % (ride.start[0], ride.start[1]))
-            self._end.set('$ %d,%d' % (ride.end[0], ride.end[1]))
+            self._start.set('$ %f,%f' % (ride.start[0], ride.start[1]))
+            self._end.set('$ %f,%f' % (ride.end[0], ride.end[1]))
             time_diff = int(ride.departure_time - time.time())
-            self._departure_days.set(max(0, time_diff // (3600*24)))
-            self._departure_hours.set(max(0, (time_diff % 3600*24) // 3600))
-            self._departure_minutes.set(max(0, round((time_diff % 3600) / 60.0 )))
+            if time_diff <= 0:
+                self._departure_days.set(0)
+                self._departure_hours.set(0)
+                self._departure_minutes.set(0)
+            else:
+                self._departure_days.set(time_diff // 86400)
+                self._departure_hours.set((time_diff % 86400) // 3600)
+                self._departure_minutes.set(int(round((time_diff % 3600) / 60.0 )))
 
             self._travellers.set(ride.travellers)
             self._backpack.set(0)
@@ -127,7 +131,7 @@ class RideSettingsPage(Frame):
         Label(departure_frame, text="min", bg="LightSkyBlue1").grid(row=1, column=7, padx=(0,5))
 
         Label(form, text="Nombre de voyageurs :", bg="LightSkyBlue1", anchor=W).pack(fill=BOTH, padx=15, pady=5)
-        Spinbox(form, from_=0, to=10, textvariable=self._travellers).pack(fill=BOTH, padx=(5, 150), pady=(0, 10))
+        Spinbox(form, from_=1, to=10, textvariable=self._travellers).pack(fill=BOTH, padx=(5, 150), pady=(0, 10))
 
         Label(form, text="Bagages :", bg="LightSkyBlue1", anchor=W).pack(fill=BOTH, padx=15, pady=5)
         luggage_frame = Frame(form, bg="LightSkyBlue1")
@@ -143,7 +147,8 @@ class RideSettingsPage(Frame):
 
         Button(form, text="Calculer le meilleur itinéraire", font=bold, highlightbackground="LightSkyBlue1")\
             .pack(side=BOTTOM, pady=10)
-        Button(form, text="Ajuster les préférences", highlightbackground="LightSkyBlue1").pack(side=LEFT, pady=(0, 15))
+        Button(form, text="Ajuster les préférences", highlightbackground="LightSkyBlue1",
+               command=self.adjust_preferences).pack(side=LEFT, pady=(0, 15))
         Button(form, text="Sauvegarder le trajet", highlightbackground="LightSkyBlue1", command=self.save_ride)\
             .pack(side=RIGHT, pady=(0, 15))
 
@@ -154,25 +159,34 @@ class RideSettingsPage(Frame):
         if not self._start.get() or not self._end.get():
             showwarning('Saisie incorrecte', "Vous devez renseigner l'adresse de départ et l'adresse d'arrivée")
             return
-        departure_time = time.time() + 10 \
-                         + 3600 * 24 * self._departure_minutes.get() \
-                         + 3600 * self._departure_hours.get() \
-                         + 60 * self._departure_minutes.get()
-        result = self._system.new_ride(self._start.get(), self._end.get(), departure_time)
-        if not result["success"]:
-            showerror('Echec de configuration du trajet', result["error"])
-            return
 
-        luggage = dict()
-        if self._backpack.get() > 0: luggage[BACKPACK] = self._backpack.get()
-        if self._handbag.get() > 0: luggage[HANDBAG] = self._handbag.get()
-        if self._suitcase.get() > 0: luggage[SUITCASE] = self._suitcase.get()
-        if self._bulky.get() > 0: luggage[BULKY] = self._bulky.get()
-        result = self._system.set_ride_precisions(self._travellers.get(), luggage)
+        try:
+            departure_time = time.time() + 10 \
+                             + 3600 * 24 * self._departure_days.get() \
+                             + 3600 * self._departure_hours.get() \
+                             + 60 * self._departure_minutes.get()
+            result = self._system.new_ride(self._start.get(), self._end.get(), departure_time)
+            if not result["success"]:
+                showerror('Echec de configuration du trajet', result["error"])
+                return
+
+            luggage = dict()
+            if self._backpack.get() > 0: luggage[BACKPACK] = self._backpack.get()
+            if self._handbag.get() > 0: luggage[HANDBAG] = self._handbag.get()
+            if self._suitcase.get() > 0: luggage[SUITCASE] = self._suitcase.get()
+            if self._bulky.get() > 0: luggage[BULKY] = self._bulky.get()
+            result = self._system.set_ride_precisions(self._travellers.get(), luggage)
+        except ValueError:
+            showwarning('Saisie incorrecte', "Le contenu des spinbox doit être un nombre entier."
+                                             "Aidez-vous des petites flêches pour incrémenter")
+            return
         if not result["success"]:
             showerror('Paramêtrage incorrect', result["error"])
             return
         self.init_parameters()
+
+    def adjust_preferences(self):
+        pass
 
 
 if __name__ == "__main__":

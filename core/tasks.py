@@ -64,4 +64,4 @@ class TasksManager(object):
 class TimeoutError(RuntimeError):
 
     def __str__(self):
-        return "L'API ne répond pas, il semble que vous ne soyez pas connecté à Internet"
+        return "L'API ne répond pas, vérifiez votre connexion à Internet"

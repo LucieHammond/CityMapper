@@ -98,7 +98,7 @@ class HowToGoSystem(object):
                 start = (float(re_start.group(1)), float(re_start.group(2)))
             re_end = re.match('^\$ (\d+.\d+), ?(\d+.\d+)$', end_address)
             if re_end:
-                start = (float(re_end.group(1)), float(re_end.group(2)))
+                end = (float(re_end.group(1)), float(re_end.group(2)))
 
             # Convertir l'adresse en coordonnées géographiques
             try:
@@ -108,23 +108,28 @@ class HowToGoSystem(object):
                 if not end: tm.new_task(target=geocode.get_from_api, args=(end_address,))
                 if not start: start = tm.next_result()
                 if not end: end = tm.next_result()
+
+                if isinstance(start, Exception):
+                    raise start
+                if isinstance(end, Exception):
+                    raise end
             except TimeoutError as e:
-                return format_error(e.message)
+                return format_error(e)
             except ApiCallError as e:
-                return format_error("Géocode: " + e.message)
+                return format_error("Géocode: " + str(e))
             except ZeroResultsError as e:
-                return format_error(e.message)
+                return format_error(e)
             except ParamNotFoundError as e:
-                return format_error("Géocode: " + e.message)
+                return format_error("Géocode: " + str(e))
 
             try:
                 new_ride = Ride(self._current_user, start, end, departure_time)
             except TimeoutError as e:
-                return format_error(e.message)
+                return format_error(e)
             except ApiCallError as e:
-                return format_error("WeatherMap :" + e.message)
+                return format_error("WeatherMap :" + str(e))
             except ParamNotFoundError as e:
-                return format_error("WeatherMap :" + e.message)
+                return format_error("WeatherMap :" + str(e))
             else:
                 self._current_ride = new_ride
                 return {"success": True}

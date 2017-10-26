@@ -30,16 +30,19 @@ class Velib(Stations):
         """
 
         params = self._config_geofilter(point, SEEKING_DIST)
-        response = self._call_api(params)
 
         try:
+            response = self._call_api(params)
             if is_start:
                 best_stations = self._parse_response(response, "available_bikes", real_time)
             else:
                 best_stations = self._parse_response(response, "available_bike_stands", real_time)
 
         except KeyError as e:
-            raise ParamNotFoundError(e.message)
+            return ParamNotFoundError(e.message)
+
+        except Exception as error:
+            return error
 
         else:
             for station in best_stations:

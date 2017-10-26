@@ -33,17 +33,21 @@ class Directions(ApiManager):
             params["departure_time"] = int(departure_time)
             if routing_preference:
                 params["transit_routing_preference"] = routing_preference
-
-        response = self._call_api(params)
-        transit_ride = (mode == TRANSIT_MODE)
-
         try:
+            response = self._call_api(params)
+            transit_ride = (mode == TRANSIT_MODE)
             data = self._parse_response(response, transit_ride)
+
         except IndexError:
             print "Over query limite : vous avez dépassé votre quotas journalier de requêtes vers cette API"
-            raise ApiCallError
+            return ApiCallError()
+
         except KeyError as e:
-            raise ParamNotFoundError(e.message)
+            return ParamNotFoundError(e.message)
+
+        except Exception as error:
+            return error
+
         else:
             return data
 
