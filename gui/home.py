@@ -42,15 +42,11 @@ class HomePage(Frame):
     def connection_form(self):
         form = LabelFrame(self, text="Connection", width=400, height=400, bg="ghost white")
 
-        username_label = Label(form, text="Nom d'utilisateur :", bg="ghost white")
-        username_label.pack(pady=(40, 0))
-        username_entry = Entry(form, textvariable=self._username, width=30)
-        username_entry.pack()
+        Label(form, text="Nom d'utilisateur :", bg="ghost white").pack(pady=(40, 0))
+        Entry(form, textvariable=self._username, width=30).pack()
 
-        password_label = Label(form, text="Mot de passe :", bg="ghost white")
-        password_label.pack(pady=(30, 0))
-        password_entry = Entry(form, textvariable=self._password, width=30, show="*")
-        password_entry.pack()
+        Label(form, text="Mot de passe :", bg="ghost white").pack(pady=(30, 0))
+        Entry(form, textvariable=self._password, width=30, show="*").pack()
 
         sign_up = Button(form, text="Inscription", width=15, command=self.start_registration)
         sign_up.pack(side=BOTTOM, pady=(0, 25))
@@ -68,20 +64,14 @@ class HomePage(Frame):
     def registration_form(self):
         form = LabelFrame(self, text="Inscription", width=400, height=400, bg="ghost white")
 
-        username_label = Label(form, text="Nom d'utilisateur :", bg="ghost white")
-        username_label.pack(pady=(40, 0))
-        username_entry = Entry(form, textvariable=self._username, width=30)
-        username_entry.pack()
+        Label(form, text="Nom d'utilisateur :", bg="ghost white").pack(pady=(40, 0))
+        Entry(form, textvariable=self._username, width=30).pack()
 
-        password_label = Label(form, text="Mot de passe :", bg="ghost white")
-        password_label.pack(pady=(30, 0))
-        password_entry = Entry(form, textvariable=self._password, width=30, show="*")
-        password_entry.pack()
+        Label(form, text="Mot de passe :", bg="ghost white").pack(pady=(30, 0))
+        Entry(form, textvariable=self._password, width=30, show="*").pack()
 
-        birthdate_label = Label(form, text="Date de naissance (jj/mm/aaaa):", bg="ghost white")
-        birthdate_label.pack(pady=(30, 0))
-        birthdate_entry = Entry(form, textvariable=self._birthdate, width=30)
-        birthdate_entry.pack()
+        Label(form, text="Date de naissance (jj/mm/aaaa):", bg="ghost white").pack(pady=(30, 0))
+        Entry(form, textvariable=self._birthdate, width=30).pack()
 
         back = Button(form, text="Retour", width=9, command=self.get_back)
         back.pack(side=LEFT, padx=(60, 0))

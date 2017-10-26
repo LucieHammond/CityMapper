@@ -39,6 +39,9 @@ class Directions(ApiManager):
 
         try:
             data = self._parse_response(response, transit_ride)
+        except IndexError:
+            print "Over query limite : vous avez dépassé votre quotas journalier de requêtes vers cette API"
+            raise ApiCallError
         except KeyError as e:
             raise ParamNotFoundError(e.message)
         else:
@@ -57,9 +60,6 @@ class Directions(ApiManager):
         steps : [{mode, distance, temps, details (si portion de parcours en métro)} pour chaque étape]
 
         """
-        if len(response["routes"]) == 0:
-            print "Over query limite : vous avez dépassé votre quotas journalier de requêtes vers cette API"
-            raise ApiCallError
         route = response["routes"][0]["legs"][0]
 
         main = dict()

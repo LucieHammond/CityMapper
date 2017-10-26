@@ -81,4 +81,5 @@ class ParamNotFoundError(Exception):
         self._param = param
 
     def __str__(self):
-        return "Unable to find param '{}' in API's response".format(self._param)
+        return "Un problème est survenu lors de l'analyse de la réponse renvoyée par l'API\n"" \
+        ""Certaines données sont manquantes ou apparaissent dans un format innatendu (comme {})".format(self._param)
