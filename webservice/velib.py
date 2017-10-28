@@ -4,7 +4,7 @@ from stations import Stations
 from api_manager import ParamNotFoundError
 
 VELIB_STATIONS = 1122  # 1122 stations Velib
-SEEKING_DIST = 800  # On cherche des stations à moins de 800m
+SEEKING_DIST = 900  # On cherche des stations à moins de 900m
 
 
 class Velib(Stations):
@@ -30,16 +30,21 @@ class Velib(Stations):
         """
 
         params = self._config_geofilter(point, SEEKING_DIST)
-        response = self._call_api(params)
 
         try:
+            response = self._call_api(params)
             if is_start:
                 best_stations = self._parse_response(response, "available_bikes", real_time)
             else:
                 best_stations = self._parse_response(response, "available_bike_stands", real_time)
 
         except KeyError as e:
-            raise ParamNotFoundError(e.message)
+            return ParamNotFoundError(e.message)
+
+        except Exception as error:
+            return error
 
         else:
+            for station in best_stations:
+                station["bonus"] = station["bonus"] == 'True'
             return best_stations

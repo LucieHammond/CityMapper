@@ -4,7 +4,7 @@ from stations import Stations
 from api_manager import ParamNotFoundError
 
 AUTOLIB_STATIONS = 1014  # 1014 stations Autolib
-SEEKING_DIST = 1000  # On cherche des stations à moins d'1km
+SEEKING_DIST = 1300  # On cherche des stations à moins d'1.3km
 
 
 class Autolib(Stations):
@@ -30,16 +30,19 @@ class Autolib(Stations):
         """
 
         params = self._config_geofilter(point, SEEKING_DIST)
-        response = self._call_api(params)
 
         try:
+            response = self._call_api(params)
             if is_start:
                 best_stations = self._parse_response(response, "cars", real_time)
             else:
                 best_stations = self._parse_response(response, "slots", real_time)
 
         except KeyError as e:
-            raise ParamNotFoundError(e.message)
+            return ParamNotFoundError(e.message)
+
+        except Exception as error:
+            return error
 
         else:
             return best_stations

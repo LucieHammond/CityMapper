@@ -3,7 +3,7 @@
 import requests
 
 
-class ApiManager:
+class ApiManager(object):
     """ Gestionnaire de communication avec une API dont on renseigne l'URL et les paramêtres à passer par défaut """
 
     def __init__(self, url, default_settings=None):
@@ -36,15 +36,15 @@ class ApiManager:
 
         except requests.RequestException as e:
             print "Error while trying to call API.\n{}".format(e.message)
-            raise ApiCallError
+            raise ApiCallError()
 
         except InvalidReplyError as e:
             print "Incorrect reply : {}".format(e)
-            raise ApiCallError
+            raise ApiCallError()
 
         except Exception as e:
             print "Error while recovering response from API.\n{}".format(e.message)
-            raise ApiCallError
+            raise ApiCallError()
 
         else:
             return data
@@ -70,7 +70,9 @@ class InvalidReplyError(Exception):
 
 
 class ApiCallError(Exception):
-    pass
+    def __str__(self):
+        return "Une erreur s'est produite au moment de récupérer les données.\n" \
+               "Vérifiez votre connexion à Internet ou relancez le système"
 
 
 class ParamNotFoundError(Exception):
@@ -79,4 +81,5 @@ class ParamNotFoundError(Exception):
         self._param = param
 
     def __str__(self):
-        return "Unable to find param '{}' in API's response".format(self._param)
+        return "Un problème est survenu lors de l'analyse de la réponse renvoyée par l'API\n"" \
+        ""Certaines données sont manquantes ou apparaissent dans un format innatendu (comme {})".format(self._param)
