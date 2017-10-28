@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from constants import WALKING_MODE, BICYCLING_MODE
+import math
 
 
 class Route(object):
@@ -80,7 +81,7 @@ class Route(object):
         # Définition d'un barême approximatif qui traduit l'impact météorologique ressenti
         # Key = (veleur min exclue, valeur max inclue)
         rain_scores = {(-1, 0): -20, (0, 1): 30, (1, 5): 50, (5, 20): 80, (20, 50): 120, (50, 500): 200}
-        snow_scores = {(-1, 0): 0, (0, 2): 40, (2, 4): 60, (4, 8): 80, (8, 30): 100, (30, 300): 200}
+        snow_scores = {(-1, 0): -5, (0, 2): 40, (2, 4): 60, (4, 8): 80, (8, 30): 100, (30, 300): 200}
         wind_scores = {(-1, 0.5): 0, (0.5, 3): 5, (3, 8): 15, (8, 14): 30, (14, 20): 50, (20, 24): 75, (24, 28): 105,
                        (28, 33): 140, (33, 200): 200}
         temp_scores = {(-273, -10): 200, (-10, 0): 120, (0, 10): 50, (10, 20): 10, (20, 30): -10, (30, 40): 10,
@@ -106,24 +107,8 @@ class Route(object):
 
         # L'impact global sera proportionnel au temps passé dehors (unité standard = pour 20 min dehors)
         bicycling_time = self._modes_breakdown[BICYCLING_MODE] if BICYCLING_MODE in self._modes_breakdown.keys() else 0
-        time_outside = (self.walking_time + bicycling_time)/1200.0
-        return impact * time_outside
+        factor = math.sqrt(1/2 * self.walking_time + bicycling_time)/5.0
+        return impact * factor
 
     def _compute_difficulty(self):
         raise NotImplementedError
-
-    def display_route(self):
-        import datetime
-        print "Trajet de {} vers {} en partant le {}".format(
-            self._ride.start,
-            self._ride.end,
-            datetime.datetime.fromtimestamp(self._ride.departure_time).strftime('%Y-%m-%d à %H:%M:%S'))
-        print "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - "
-        print "Recapitulatif :"
-        print " - Temps :", self._time
-        print " - Distance :", self._distance
-        print " - Prix :", self._price
-        print " - Nombre de transferts :", self._transfers_nb
-        print " - Temps de marche :", self._walking_time
-        print " - Agréabilité du trajet (1) :", self._discomfort
-        print "(1) Le confort est calculé sur une échelle de 0 (plus agréable) à 2000 (moins agréable)\n"

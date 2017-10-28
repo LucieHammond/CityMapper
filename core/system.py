@@ -9,6 +9,7 @@ from webservice.geocode import Geocode, ZeroResultsError
 from tasks import TasksManager, TimeoutError
 
 #todo récupérer les exceptions
+# todo "terminating with uncaught exception of type NSException"
 
 
 # Vérifie le type des arguments des fonctions appelables du système
@@ -70,6 +71,7 @@ class HowToGoSystem(object):
     def sign_out(self):
         if self._current_user:
             self._current_user = None
+            self._current_ride = None
             return {"success": True}
         else:
             return format_error("Aucun utilisateur n'est actuellement connecté")
@@ -109,10 +111,6 @@ class HowToGoSystem(object):
                 if not start: start = tm.next_result()
                 if not end: end = tm.next_result()
 
-                if isinstance(start, Exception):
-                    raise start
-                if isinstance(end, Exception):
-                    raise end
             except TimeoutError as e:
                 return format_error(e)
             except ApiCallError as e:
@@ -137,7 +135,7 @@ class HowToGoSystem(object):
             return format_error("Aucun utilisateur n'est actuellement connecté")
 
     @check_params(object)
-    def reset_ride(self):
+    def cancel_ride(self):
         if self._current_ride:
             self._current_ride = None
             return {"success": True}
@@ -157,13 +155,18 @@ class HowToGoSystem(object):
         else:
             return format_error("Vous n'avez pas encore défini de trajet")
 
-    @check_params(object, dict)
-    def set_ride_preferences(self, preferences):
-        if self._current_ride:
-            self._current_ride.preferences = preferences
-        else:
-            print "Vous n'avez pas encore défini de trajet"
-
     @check_params(object)
     def start_calculation(self):
-        possible_routes, unsuitable_routes = self._current_ride.start_simulation()
+        if self._current_ride:
+            try:
+                possible_routes, unsuitable_routes = self._current_ride.start_simulation()
+            except TimeoutError as e:
+                return format_error(e)
+            except ApiCallError as e:
+                return format_error(e)
+            except ParamNotFoundError as e:
+                return format_error(e)
+            else:
+                return {"success":True, "possible_routes": possible_routes, "unsuitable_routes": unsuitable_routes}
+        else:
+            return format_error("Vous n'avez pas encore défini de trajet")

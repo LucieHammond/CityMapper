@@ -145,12 +145,12 @@ class RideSettingsPage(Frame):
         Spinbox(luggage_frame, from_=0, to=10, width=3, textvariable=self._suitcase).grid(row=2, column=3)
         Spinbox(luggage_frame, from_=0, to=10, width=3, textvariable=self._bulky).grid(row=2, column=4)
 
-        Button(form, text="Calculer le meilleur itinéraire", font=bold, highlightbackground="LightSkyBlue1")\
-            .pack(side=BOTTOM, pady=10)
-        Button(form, text="Ajuster les préférences", highlightbackground="LightSkyBlue1",
-               command=self.adjust_preferences).pack(side=LEFT, pady=(0, 15))
-        Button(form, text="Sauvegarder le trajet", highlightbackground="LightSkyBlue1", command=self.save_ride)\
-            .pack(side=RIGHT, pady=(0, 15))
+        Button(form, text="Calculer le meilleur itinéraire", font=bold, highlightbackground="LightSkyBlue1",
+               command=self.start_calculation).pack(side=BOTTOM, pady=10)
+        Button(form, text="Annuler le trajet", highlightbackground="LightSkyBlue1", command=self.cancel_ride,
+               width=15).pack(side=LEFT, pady=(0, 15))
+        Button(form, text="Sauvegarder le trajet", highlightbackground="LightSkyBlue1", command=self.save_ride,
+               width=15).pack(side=RIGHT, pady=(0, 15))
 
         return form
 
@@ -185,8 +185,30 @@ class RideSettingsPage(Frame):
             return
         self.init_parameters()
 
-    def adjust_preferences(self):
-        pass
+    def cancel_ride(self):
+        result = self._system.cancel_ride()
+        if not result["success"]:
+            showerror('Erreur système', result["error"])
+            return
+        self.pack_forget()
+        RideSettingsPage(self._window, self._system)
+
+    def start_calculation(self):
+        from results import ResultsPage
+
+        self.save_ride()
+        result = self._system.start_calculation()
+        if not result["success"]:
+            showerror('Erreur système', result["error"])
+            return
+
+        possible_routes = result["possible_routes"]
+        unsuitable_routes = result["unsuitable_routes"]
+
+        self._frame.pack_forget()
+        self._frame = ResultsPage(self, self._system.current_ride.weather, possible_routes, unsuitable_routes)
+        self._frame.pack(fill=BOTH, expand=YES, side=RIGHT, padx=(0, 20), pady=20)
+        self._frame.pack_propagate(0)
 
 
 if __name__ == "__main__":

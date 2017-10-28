@@ -26,6 +26,8 @@ class Worker(Thread):
         self.join(10)
         if self.isAlive():
             raise TimeoutError
+        if isinstance(self._return, Exception):
+            raise self._return
         return self._return
 
 

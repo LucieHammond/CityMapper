@@ -30,7 +30,7 @@ class Ride(object):
         self._travellers = 1  # Nombre de voyageurs
         self._luggage = dict()
 
-        # Par défault, les préférences pour le trajet sont celles définies dans le profil de l'utilisateur
+        # Les préférences pour le trajet sont celles définies dans le profil de l'utilisateur
         self._preferences = user.preferences
         self._weather = self._get_weather()
 
@@ -81,16 +81,6 @@ class Ride(object):
     @property
     def preferences(self):
         return self._preferences
-
-    @preferences.setter
-    def preferences(self, value):
-        """ :type value: dict( {critère : note de 0 à 5, ...} ) """
-        if sorted(value.keys()) != [CHEAPEST, FASTEST, LESS_PAINFUL, LESS_WALKING, SHORTEST, SIMPLEST, WEATHER_IMPACT]:
-            raise ValueError
-        for val in value.values():
-            if val not in range(0, 6):
-                raise ValueError
-        self._preferences = value
 
     def _get_weather(self):
         """ Appelle l'API de Open Weather Map pour connaître la météo au moment du départ
@@ -146,7 +136,7 @@ class Ride(object):
                 possible_routes.append(autolib_route)
             else:
                 unsuitable_msg = "Aucun itinéraire en Autolib n'a pu être trouvé"
-        if unsuitable_routes:
+        if unsuitable_msg:
             unsuitable_routes.append({"mode": "autolib", "msg": unsuitable_msg})
 
         if len(possible_routes) <= 1:
@@ -199,14 +189,26 @@ class Ride(object):
 
         """
 
-        scores = dict.fromkeys(possible_routes, {})
-
         # Les scores sont ramenés sur une échelle comparable
         def normalize_score(score, ref_mini, ref_maxi):
             return (float(score) - float(ref_mini)) / (float(ref_maxi) - float(ref_mini))
 
-        ref_min = dict({"price": 0, "transfers_nb": 2, "luggage": 0, "weather_impact": 0})
-        ref_max = dict({"price": 5, "transfers_nb": 4, "luggage": 100, "weather_impact": 100})
+        def get_property(route, property):
+            dict = {"time": route.time,
+                    "distance": route.distance,
+                    "price": route.price,
+                    "difficulty": route.difficulty,
+                    "walking_time": route.walking_time,
+                    "weather_impact": route.weather_impact,
+                    "transfers_nb": route.transfers_nb}
+            return dict[property]
+
+        scores = dict.fromkeys(possible_routes)
+        for route in scores.keys():
+            scores[route] = {}
+
+        ref_min = dict({"price": 0, "transfers_nb": 2, "difficulty": 0, "weather_impact": 0})
+        ref_max = dict({"price": 5, "transfers_nb": 4, "difficulty": 100, "weather_impact": 100})
         ref_min["time"] = min([route.time for route in possible_routes])
         ref_min["distance"] = min([route.distance for route in possible_routes])
         ref_min["walking_time"] = min([route.walking_time for route in possible_routes])
@@ -216,7 +218,7 @@ class Ride(object):
 
         for param in associated_params.values():
             for route in possible_routes:
-                scores[route][param] = normalize_score(route.__getattribute__(param), ref_min[param], ref_max[param])
+                scores[route][param] = normalize_score(get_property(route, param), ref_min[param], ref_max[param])
 
         return scores
 
@@ -234,4 +236,6 @@ class Ride(object):
             grade = sum([preferences[criteria] * score[param] for criteria, param in associated_params.items()])
             scores[route]["grade"] = grade
 
-        return sorted(scores.keys(), key=itemgetter("grade"))
+        sorted_scores = sorted(scores.items(), key=lambda x: x[1]["grade"])
+
+        return [score[0] for score in sorted_scores]

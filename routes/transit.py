@@ -21,6 +21,9 @@ class SubwayRoute(Route):
     def stations_list(self):
         return self._stations_list
 
+    def is_walking_route(self):
+        return self._modes_breakdown[TRANSIT_MODE] == 0
+
     def calculate_route(self):
         """ Calcule l'itinéraire exact le plus adapté aux préférences de l'utilisateur
         L'itinéraire est récupéré depuis l'API Directions de Google Maps
@@ -42,7 +45,8 @@ class SubwayRoute(Route):
         self._steps = list()
         last_station = None
         for step in route["steps"]:
-            self._steps.append(step)
+            if step["dist"]!=0 or step["time"]!=0:
+                self._steps.append(step)
             if step["mode"] == TRANSIT_MODE:
                 start_station = step["details"]["start"]
                 end_station = step["details"]["end"]
@@ -114,8 +118,8 @@ class SubwayRoute(Route):
             best_route = None
             best_time = -1
             for route in routes:
-                if best_time == -1 or route.time < best_time:
-                    best_time = route.time
+                if best_time == -1 or route["main"]["time"] < best_time:
+                    best_time = route["main"]["time"]
                     best_route = route
             return best_route
 

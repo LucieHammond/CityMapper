@@ -85,10 +85,10 @@ class VelibRoute(Route):
         # Compare les itinéraires possibles et renvoie le meilleur compte tenu des préférences de l'utilisateur
         if check_price:
             b_start, b_end, b_velib = self._check_price(search_criterion, start_stations, end_stations, start_routes,
-                                                        end_routes, bicycling_routes)
+                                                        end_routes, bicycling_routes.results_list())
         else:
             b_start, b_end, b_velib = self._optimize_route(search_criterion, start_stations, end_stations, start_routes,
-                                                           end_routes, bicycling_routes)
+                                                           end_routes, bicycling_routes.results_list())
 
         # On peut maintenant définir les caractéristiques de la route trouvée
         self._start_station = start_stations[b_start]
@@ -146,15 +146,19 @@ class VelibRoute(Route):
         elif criterion == SHORTEST:
             return self._optimize_dist(start_sts, end_sts, start_rts, end_rts, bicycling_rts)
         else:
-            return self._optimize_walking(start_sts, end_sts, start_rts, end_rts, bicycling_rts.results_list())
+            return self._optimize_walking(start_sts, end_sts, start_rts, end_rts, bicycling_rts)
 
     def _check_price(self, second_criterion, start_stations, end_stations, start_routes, end_routes, bicycling_routes):
         """ Sélectionner éventuellement les stations en cas de différence de prix constatée (stations bonus) """
 
         starts = [index for index, station in enumerate(start_stations) if not station["bonus"]]
         ends = [index for index, station in enumerate(end_stations) if station["bonus"]]
+
         if len(starts) > 0 and len(ends) > 0 and (len(starts) < len(start_stations) or len(ends) < len(end_stations)):
-            all_indices = [s * len(start_stations) + e for (s, e) in zip(starts, ends)]
+            all_indices = list()
+            for s in starts:
+                for e in ends:
+                    all_indices.append(s * len(end_stations) + e)
             start_sts = [start_stations[i] for i in starts]
             end_sts = [end_stations[i] for i in ends]
             start_rts = [start_routes[i] for i in starts]
@@ -176,7 +180,7 @@ class VelibRoute(Route):
             time_start = start_routes[start]["time"]
             for end, end_station in enumerate(end_stations):
                 time_end = end_routes[end]["time"]
-                route = bicycling_routes.next_result()
+                route = bicycling_routes[start * len(end_stations) + end]
                 total_time = route["time"] + time_start + time_end
                 if time_min == -1 or total_time < time_min:
                     time_min = total_time
@@ -196,7 +200,7 @@ class VelibRoute(Route):
             dist_start = start_routes[start]["dist"]
             for end, end_station in enumerate(end_stations):
                 dist_end = end_routes[end]["dist"]
-                route = bicycling_routes.next_result()
+                route = bicycling_routes[start * len(end_stations) + end]
                 total_dist = route["dist"] + dist_start + dist_end
                 if dist_min == -1 or total_dist < dist_min:
                     dist_min = total_dist
@@ -222,7 +226,7 @@ class VelibRoute(Route):
             if time_min == -1 or time_end < time_min:
                 time_min = time_end
                 best_end = end
-        return best_start, best_end, bicycling_routes[best_end * len(start_stations) + best_start]
+        return best_start, best_end, bicycling_routes[best_start * len(end_stations) + best_end]
 
     def _compute_price(self):
         """ Calcule le prix exact de l'itinéraire finalement choisi """
