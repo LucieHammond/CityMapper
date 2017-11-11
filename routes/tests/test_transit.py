@@ -29,18 +29,12 @@ class TransitRouteTest(unittest.TestCase):
 
         self.assertTrue(self.success)
 
-        # Vérifie la cohérence des stations trouvées
-        self.assertIsInstance(self.route.stations_list, list)
-        self.assertEqual(len(self.route.stations_list), len(self.route.steps) - 1)
-        for station in self.route.stations_list:
-            self.assertEqual(sorted(station.keys()), ["line", "name", "position"])
-
         # Vérifie la cohérence des données détaillées de l'itinéraire
         self.assertIsNotNone(self.route.steps)
         self.assertGreaterEqual(len(self.route.steps), 3)
         self.assertLessEqual(self.route.walking_time, self.route.time)
         self.assertGreaterEqual(self.route.distance, _distance_between(self.ride.start, self.ride.end))
-        self.assertLessEqual(self.route.transfers_nb, len(self.route.stations_list))
+        self.assertLessEqual(self.route.transfers_nb, len(self.route.steps))
 
         # Comparaisons des résultats trouvés par critère de recherche
         # --- par défault c'était le plus rapide

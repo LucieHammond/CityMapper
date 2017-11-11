@@ -15,11 +15,6 @@ class SubwayRoute(Route):
 
     def __init__(self, ride):
         Route.__init__(self, ride)
-        self._stations_list = None
-
-    @property
-    def stations_list(self):
-        return self._stations_list
 
     def is_walking_route(self):
         return self._modes_breakdown[TRANSIT_MODE] == 0
@@ -41,11 +36,10 @@ class SubwayRoute(Route):
         self._dist = route["main"]["dist"]
 
         transfers_nb = 0
-        self._stations_list = list()
         self._steps = list()
         last_station = None
         for step in route["steps"]:
-            if step["dist"]!=0 or step["time"]!=0:
+            if step["dist"] != 0 or step["time"] != 0:
                 self._steps.append(step)
             if step["mode"] == TRANSIT_MODE:
                 start_station = step["details"]["start"]
@@ -53,16 +47,10 @@ class SubwayRoute(Route):
 
                 if not last_station or last_station["name"] != start_station["name"]:
                     transfers_nb += 1
-                if not last_station or last_station["position"] != start_station["position"]:
-                    start_station["line"] = step["details"]["line"]
-                    self._stations_list.append(start_station)
 
-                end_station["line"] = step["details"]["line"]
-                self._stations_list.append(end_station)
                 last_station = end_station
                 transfers_nb += 1
 
-        assert len(self._stations_list) == len(self._steps) - 1
         self._transfers_nb = transfers_nb
 
         walking_time = sum([step["time"] for step in route["steps"] if step["mode"] == WALKING_MODE])

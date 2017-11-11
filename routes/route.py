@@ -107,7 +107,8 @@ class Route(object):
 
         # L'impact global sera proportionnel au temps passé dehors (unité standard = pour 20 min dehors)
         bicycling_time = self._modes_breakdown[BICYCLING_MODE] if BICYCLING_MODE in self._modes_breakdown.keys() else 0
-        factor = math.sqrt(1/2 * self.walking_time + bicycling_time)/5.0
+        factor = math.sqrt(1/2 * self.walking_time + bicycling_time)/40.0
+        print impact, factor
         return impact * factor
 
     def _compute_difficulty(self):

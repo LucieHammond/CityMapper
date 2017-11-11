@@ -5,7 +5,8 @@ from tkMessageBox import *
 from core.system import HowToGoSystem
 from datetime import date
 import time
-from constants import BACKPACK, HANDBAG, SUITCASE, BULKY
+from constants import BACKPACK, HANDBAG, SUITCASE, BULKY, WALKING_MODE, DRIVING_MODE, BICYCLING_MODE, TRANSIT_MODE, \
+    LINE_COLORS
 
 
 class RideSettingsPage(Frame):
@@ -40,8 +41,8 @@ class RideSettingsPage(Frame):
     def init_parameters(self):
         if self._system.current_ride:
             ride = self._system.current_ride
-            self._start.set('$ %f,%f' % (ride.start[0], ride.start[1]))
-            self._end.set('$ %f,%f' % (ride.end[0], ride.end[1]))
+            self._start.set('@ %f,%f' % (ride.start[0], ride.start[1]))
+            self._end.set('@ %f,%f' % (ride.end[0], ride.end[1]))
             time_diff = int(ride.departure_time - time.time())
             if time_diff <= 0:
                 self._departure_days.set(0)
@@ -209,6 +210,62 @@ class RideSettingsPage(Frame):
         self._frame = ResultsPage(self, self._system.current_ride.weather, possible_routes, unsuitable_routes)
         self._frame.pack(fill=BOTH, expand=YES, side=RIGHT, padx=(0, 20), pady=20)
         self._frame.pack_propagate(0)
+
+    def draw_result(self, route):
+
+        self._map.delete('temp')
+
+        width, height = 600, 500
+        dlat, dlong = 0.1128, 0.206
+        ref_lat, ref_long = 48.9155, 2.2310
+
+        def get_map_coordinates(point):
+            x = (point[1] - ref_long) / dlong * width
+            y = (ref_lat - point[0]) / dlat * height
+            return x, y
+
+        start_x, start_y = get_map_coordinates(self._system.current_ride.start)
+        end_x, end_y = get_map_coordinates(self._system.current_ride.end)
+
+        stations = list()
+        stations.append((start_x, start_y))
+        walks = list()
+        for step in route.steps:
+            if step["mode"] == WALKING_MODE:
+                walks.append(len(stations) - 1)
+            elif step["mode"] in (BICYCLING_MODE, DRIVING_MODE):
+                field = "position" if step["mode"] == BICYCLING_MODE else "geo_point"
+                x1, y1 = get_map_coordinates(route.start_station[field])
+                x2, y2 = get_map_coordinates(route.end_station[field])
+                color = "green4" if step["mode"] == BICYCLING_MODE else "blue3"
+                self._map.create_line(x1, y1, x2, y2, width=6, fill=color, tags="temp")
+                stations.append((x1, y1))
+                stations.append((x2, y2))
+
+            elif step["mode"] == TRANSIT_MODE:
+                x1, y1 = get_map_coordinates(step["details"]["start"]["position"])
+                x2, y2 = get_map_coordinates(step["details"]["end"]["position"])
+                try:
+                    color = LINE_COLORS[step["details"]["line"]]
+                except KeyError:
+                    color = "navy"
+                self._map.create_line(x1, y1, x2, y2, width=6, fill=color, tags="temp")
+                stations.append((x1, y1))
+                stations.append((x2, y2))
+
+        for walk in walks:
+            x1, y1 = stations[walk]
+            if len(stations) > walk + 1:
+                x2, y2 = stations[walk + 1]
+            else:
+                x2, y2 = end_x, end_y
+            self._map.create_line(x1, y1, x2, y2, width=6, dash=(8, 4), fill="dodger blue", tags="temp")
+
+        stations.append((end_x, end_y))
+        for station in stations:
+            x = station[0]
+            y = station[1]
+            self._map.create_oval(x - 5, y - 5, x + 5, y + 5, width=1, fill="white", tags="temp")
 
 
 if __name__ == "__main__":

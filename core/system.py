@@ -94,11 +94,11 @@ class HowToGoSystem(object):
         if self._current_user:
             start, end = None, None
 
-            # Si l'adresse est déjà renseignée en temps que coordonnées sous la forme "$ longitude,latitude"
-            re_start = re.match('^\$ (\d+.\d+), ?(\d+.\d+)$', start_address)
+            # Si l'adresse est déjà renseignée en temps que coordonnées sous la forme "@ longitude,latitude"
+            re_start = re.match('^\@ (\d+.\d+), ?(\d+.\d+)$', start_address)
             if re_start:
                 start = (float(re_start.group(1)), float(re_start.group(2)))
-            re_end = re.match('^\$ (\d+.\d+), ?(\d+.\d+)$', end_address)
+            re_end = re.match('^\@ (\d+.\d+), ?(\d+.\d+)$', end_address)
             if re_end:
                 end = (float(re_end.group(1)), float(re_end.group(2)))
 

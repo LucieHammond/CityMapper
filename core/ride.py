@@ -214,7 +214,7 @@ class Ride(object):
         ref_min["walking_time"] = min([route.walking_time for route in possible_routes])
         ref_max["time"] = 1.4 * ref_min["time"]
         ref_max["distance"] = 1.4 * ref_min["distance"]
-        ref_max["walking_time"] = 1.4 * ref_min["walking_time"]
+        ref_max["walking_time"] = 1.2 * ref_min["walking_time"] + 5
 
         for param in associated_params.values():
             for route in possible_routes:
@@ -235,6 +235,7 @@ class Ride(object):
         for route, score in scores.items():
             grade = sum([preferences[criteria] * score[param] for criteria, param in associated_params.items()])
             scores[route]["grade"] = grade
+            print route, score
 
         sorted_scores = sorted(scores.items(), key=lambda x: x[1]["grade"])
 
