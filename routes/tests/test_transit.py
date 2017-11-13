@@ -29,18 +29,12 @@ class TransitRouteTest(unittest.TestCase):
 
         self.assertTrue(self.success)
 
-        # Vérifie la cohérence des stations trouvées
-        self.assertIsInstance(self.route.stations_list, list)
-        self.assertEqual(len(self.route.stations_list), len(self.route.steps) - 1)
-        for station in self.route.stations_list:
-            self.assertEqual(sorted(station.keys()), ["line", "name", "position"])
-
         # Vérifie la cohérence des données détaillées de l'itinéraire
         self.assertIsNotNone(self.route.steps)
         self.assertGreaterEqual(len(self.route.steps), 3)
         self.assertLessEqual(self.route.walking_time, self.route.time)
         self.assertGreaterEqual(self.route.distance, _distance_between(self.ride.start, self.ride.end))
-        self.assertLessEqual(self.route.transfers_nb, len(self.route.stations_list))
+        self.assertLessEqual(self.route.transfers_nb, len(self.route.steps))
 
         # Comparaisons des résultats trouvés par critère de recherche
         # --- par défault c'était le plus rapide
@@ -49,16 +43,16 @@ class TransitRouteTest(unittest.TestCase):
         walking_fastest = self.route.walking_time
 
         # --- le moins de marche
-        self.ride.preferences = {FASTEST: 1, SHORTEST: 0, CHEAPEST: 3, LESS_WALKING: 5, SIMPLEST: 2, WEATHER_IMPACT: 6,
-                                 LESS_PAINFUL: 4}
+        self.ride.user.preferences = {FASTEST: 1, SHORTEST: 0, CHEAPEST: 3, LESS_WALKING: 5, SIMPLEST: 2,
+                                      WEATHER_IMPACT: 5, LESS_PAINFUL: 4}
         self.route = SubwayRoute(self.ride)
         self.route.calculate_route()
         self.assertGreaterEqual(self.route.time, time_fastest)
         self.assertLessEqual(self.route.walking_time, walking_fastest)
 
         # --- le moins de correspondances
-        self.ride.preferences = {FASTEST: 5, SHORTEST: 0, CHEAPEST: 3, LESS_WALKING: 1, SIMPLEST: 6, WEATHER_IMPACT: 0,
-                                 LESS_PAINFUL: 4}
+        self.ride.user.preferences = {FASTEST: 4, SHORTEST: 0, CHEAPEST: 3, LESS_WALKING: 1, SIMPLEST: 5,
+                                      WEATHER_IMPACT: 0, LESS_PAINFUL: 4}
         self.route = SubwayRoute(self.ride)
         self.route.calculate_route()
         self.assertGreaterEqual(self.route.time, time_fastest)
@@ -79,7 +73,7 @@ class TransitRouteTest(unittest.TestCase):
         self.ride.user.set_subscriptions_infos(VELIB_NO_SUBSCRIPTION, AUTOLIB_PRET_A_ROULER, SUBWAY_TICKETS_REDUCED)
         self.route = SubwayRoute(self.ride)
         self.route.calculate_route()
-        self.assertEqual(self.route.price, round(TEN_TICKETS_REDUCED_PRICE/10.0,2))
+        self.assertEqual(self.route.price, round(TEN_TICKETS_REDUCED_PRICE/10.0, 2))
 
     def test_weather_impact(self):
         self.assertGreaterEqual(self.route.weather_impact, -150)

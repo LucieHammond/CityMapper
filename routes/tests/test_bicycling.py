@@ -5,7 +5,7 @@ from routes.bicycling import VelibRoute, ONE_TICKET_PRICE
 from core.ride import Ride
 from core.user import User
 from constants import FASTEST, SHORTEST, CHEAPEST, LESS_WALKING, SIMPLEST, WEATHER_IMPACT, LESS_PAINFUL, \
-    VELIB_SUBSCRIPTION_30M, VELIB_SUBSCRIPTION_45M, VELIB_TICKETS_30M, AUTOLIB_PRET_A_ROULER, SUBWAY_NO_TITLE, \
+    VELIB_SUBSCRIPTION_30M, VELIB_SUBSCRIPTION_45M, AUTOLIB_PRET_A_ROULER, SUBWAY_NO_TITLE, \
     BACKPACK, HANDBAG
 from datetime import date, timedelta
 import time
@@ -45,7 +45,7 @@ class VelibRouteTest(unittest.TestCase):
         self.assertEqual(self.route.walking_time, self.route.steps[0]["time"] + self.route.steps[2]["time"])
         self.assertLessEqual(self.route.walking_time, self.route.time)
         self.assertGreaterEqual(self.route.distance, _distance_between(self.ride.start, self.ride.end))
-        self.assertEqual(self.route.transfers_nb, 2)
+        self.assertEqual(self.route.transfers_nb, 0)
 
         # Comparaisons des résultats trouvés par critère de recherche
         # --- par défault c'était le plus rapide
@@ -54,16 +54,16 @@ class VelibRouteTest(unittest.TestCase):
         walking_fastest = self.route.walking_time
 
         # --- le moins de marche
-        self.ride.preferences = {FASTEST: 1, SHORTEST: 0, CHEAPEST: 3, LESS_WALKING: 5, SIMPLEST: 2, WEATHER_IMPACT: 6,
-                                 LESS_PAINFUL: 4}
+        self.ride.user.preferences = {FASTEST: 1, SHORTEST: 0, CHEAPEST: 3, LESS_WALKING: 5, SIMPLEST: 2,
+                                      WEATHER_IMPACT: 5, LESS_PAINFUL: 4}
         self.route = VelibRoute(self.ride)
         self.route.calculate_route()
         self.assertGreaterEqual(self.route.time, time_fastest)
         self.assertLessEqual(self.route.walking_time, walking_fastest)
 
         # --- le plus court en distance
-        self.ride.preferences = {FASTEST: 0, SHORTEST: 5, CHEAPEST: 3, LESS_WALKING: 1, SIMPLEST: 2, WEATHER_IMPACT: 6,
-                                 LESS_PAINFUL: 4}
+        self.ride.user.preferences = {FASTEST: 0, SHORTEST: 5, CHEAPEST: 3, LESS_WALKING: 1, SIMPLEST: 2,
+                                      WEATHER_IMPACT: 5, LESS_PAINFUL: 4}
         self.route = VelibRoute(self.ride)
         self.route.calculate_route()
         self.assertGreaterEqual(self.route.time, time_fastest)

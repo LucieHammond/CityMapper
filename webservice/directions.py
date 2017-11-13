@@ -85,7 +85,10 @@ class Directions(ApiManager):
                 transit_details = step["transit_details"]
 
                 details = dict()
-                details["line"] = transit_details["line"]["short_name"]
+                if "short_name" in transit_details["line"]:
+                    details["line"] = transit_details["line"]["short_name"]
+                else:
+                    details["line"] = transit_details["line"]["name"]
                 details["direction"] = transit_details["headsign"]
                 details["stops"] = transit_details["num_stops"]
                 details["start"] = {"name": transit_details["departure_stop"]["name"],

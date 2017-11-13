@@ -46,7 +46,11 @@ class User(object):
 
     @property
     def age(self):
-        return relativedelta(date.today(),self._birthdate).years
+        return relativedelta(date.today(), self._birthdate).years
+
+    @property
+    def birthdate(self):
+        return self._birthdate
 
     @property
     def preferences(self):
@@ -58,7 +62,7 @@ class User(object):
         if sorted(value.keys()) != [CHEAPEST, FASTEST, LESS_PAINFUL, LESS_WALKING, SHORTEST, SIMPLEST, WEATHER_IMPACT]:
             raise ValueError
         for val in value.values():
-            if val not in range(0,6):
+            if val not in range(0, 6):
                 raise ValueError
         self._preferences = value
 
@@ -83,16 +87,3 @@ class User(object):
         if subway not in [SUBWAY_NO_TITLE, SUBWAY_NAVIGO_SUBSCRIPTION, SUBWAY_TICKETS_BOOK, SUBWAY_TICKETS_REDUCED]:
             raise ValueError
         self._subscriptions = {"velib": velib, "autolib": autolib, "subway": subway}
-
-    def print_user_infos(self, detailed=False):
-        print "Utilisateur {} : {} ({} ans)".format(self._id, self._username, self.age)
-        if detailed:
-            print "- - - - - - - - - - - - - - - - - - - - - - - - - - - - "
-            print "Abonnements :"
-            print " - Velib :", self._subscriptions["velib"]
-            print " - Autolib :", self._subscriptions["autolib"]
-            print " - Transports en commun :", self._subscriptions["subway"]
-            print "Préférences :"
-            for preference, value in self._preferences.items():
-                print " - {} : {}".format(preference, str(value))
-            print "Permis de conduire : {}\n".format("Oui" if self._driving_licence else "Non")

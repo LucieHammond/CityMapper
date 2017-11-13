@@ -16,13 +16,14 @@ AUTOLIB_SUBSCRIPTIONS = {AUTOLIB_PREMIUM: u"Abonnement Autolib' Premium (tarif l
                          AUTOLIB_PRET_A_ROULER: u"Abonnement Autolib' Prêt A Rouler (gratuit, tarif par défault)",
                          AUTOLIB_FIRST_RENTING_OFFER: u"Offre '1ère location offerte' à utiliser avec Prêt A Rouler"}
 
-SUBWAY_SUBSCRIPTIONS = {SUBWAY_NAVIGO_SUBSCRIPTION: u"Forfait illimité (Navigo, ImagineR, Mobilis, Visite, Week End...)",
+SUBWAY_SUBSCRIPTIONS = {SUBWAY_NAVIGO_SUBSCRIPTION: u"Forfait illimité (Navigo, ImagineR, Mobilis, Visite, Week End..)",
                         SUBWAY_TICKETS_BOOK: u"Tickets T+ par carnets de 10",
                         SUBWAY_TICKETS_REDUCED: u"Tickets T+ par carnets de 10 (tarif réduit)",
                         SUBWAY_NO_TITLE: u"Aucun titre de transport RATP (ou ticket T+ à l'unité)"}
 
 
 class ProfilePage(Frame):
+    """ Page de modification du profil utilisateur (avec 2 volets : informations et préférences) """
 
     def __init__(self, window, system, page=1):
         Frame.__init__(self, window, width=1000, height=600, bg="burlywood1")
@@ -31,6 +32,7 @@ class ProfilePage(Frame):
         self._window = window
         self._system = system
 
+        # Titres de transports / Permis de conduire
         self._velib = StringVar()
         self._velib.set(VELIB_SUBSCRIPTIONS[system.current_user.subscriptions["velib"]])
         self._autolib = StringVar()
@@ -40,6 +42,7 @@ class ProfilePage(Frame):
         self._driving_licence = BooleanVar()
         self._driving_licence.set(system.current_user.driving_licence)
 
+        # Préférences
         self._fastest = IntVar()
         self._fastest.set(system.current_user.preferences[FASTEST])
         self._less_walking = IntVar()
@@ -60,69 +63,85 @@ class ProfilePage(Frame):
         self.frame.pack_propagate(0)
 
     def page_1(self):
+        """ Affiche la page 1 du profil """
         self.frame.pack_forget()
         self.frame = self.subscriptions_form()
         self.frame.pack(fill=BOTH, expand=YES, padx=30, pady=30)
         self.frame.pack_propagate(0)
 
     def page_2(self):
+        """ Affiche la page 2 du profil """
         self.frame.pack_forget()
         self.frame = self.preferences_form()
         self.frame.pack(fill=BOTH, expand=YES, padx=30, pady=30)
         self.frame.pack_propagate(0)
 
     def subscriptions_form(self):
+        """ Crée et renvoie le formulaire sur les infos de transport (page 1) """
         form = LabelFrame(self, text="Gestion du profil utilisateur (page 1)", width=940, height=540, bg="ghost white")
 
+        # Titres de transport
         frame1 = Frame(form, width=450, height=470, bg="ghost white")
-        frame1.grid(row=1, column=1, padx=(20,0))
+        frame1.grid(row=1, column=1, padx=(20, 0))
         frame1.pack_propagate(0)
         Label(frame1, text="1. Titres de transport", font=("Helvetica", 16, "bold"), bg="ghost white", anchor=W)\
             .pack(pady=20, fill=BOTH)
         Label(frame1, text="De quels forfaits ou abonnements disposez vous pour les moyens\nde transports suivants ?",
               bg="ghost white", anchor=W, justify=LEFT).pack(pady=(0, 10), fill=BOTH)
 
-        # Forfaits Vélib
+        # - Forfaits Vélib
         Label(frame1, text="Vélib", bg="ghost white", font=(None, 14, "bold"), anchor=W) \
             .pack(pady=(10, 0), padx=(10, 0), fill=BOTH)
         velib_options = OptionMenu(frame1, self._velib, *VELIB_SUBSCRIPTIONS.values())
         velib_options.config(width=50)
         velib_options.pack(padx=(0, 20))
 
-        # Forfaits Autolib
+        # - Forfaits Autolib
         Label(frame1, text="Autolib", bg="ghost white", font=(None, 14, "bold"), anchor=W) \
             .pack(pady=(15, 0), padx=(10, 0), fill=BOTH)
         autolib_options = OptionMenu(frame1, self._autolib, *AUTOLIB_SUBSCRIPTIONS.values())
         autolib_options.config(width=50)
         autolib_options.pack(padx=(0, 20))
 
-        # Forfaits RATP
+        # - Forfaits RATP
         Label(frame1, text="Transports en commun", bg="ghost white", font=(None, 14, "bold"), anchor=W) \
             .pack(pady=(15, 0), padx=(10, 0), fill=BOTH)
         autolib_options = OptionMenu(frame1, self._subway, *SUBWAY_SUBSCRIPTIONS.values())
         autolib_options.config(width=50)
         autolib_options.pack(padx=(0, 20))
 
+        # Permis de conduire
         frame2 = Frame(form, width=450, height=470, bg="ghost white")
-        frame2.grid(row=1, column=2, padx=(0,20))
+        frame2.grid(row=1, column=2, padx=(0, 20))
         frame2.pack_propagate(0)
         Label(frame2, text="2. Permis de conduire", font=("Helvetica", 16, "bold"), bg="ghost white", anchor=W)\
             .pack(pady=20, fill=BOTH)
-        Checkbutton(frame2, text=" Je suis en posséssion d'un permis de conduire valide", variable=self._driving_licence,
-              bg="ghost white", anchor=W, justify=LEFT).pack(pady=(0, 10), fill=BOTH)
+        Checkbutton(frame2, text=" Je suis en posséssion d'un permis de conduire valide", bg="ghost white", anchor=W,
+                    variable=self._driving_licence, justify=LEFT).pack(pady=(0, 10), fill=BOTH)
 
-        Button(form, text="<< Précédent", width=13, state=DISABLED).grid(row=2, column=1, pady=5, padx=(0,250))
+        # Informations globales
+        Label(frame2, text="3. Informations globales", font=("Helvetica", 16, "bold"), bg="ghost white", anchor=W) \
+            .pack(pady=(50, 20), fill=BOTH)
+        username = " - Nom d'utilisateur : " + self._system.current_user.username
+        birthdate = " - Date de naissance : %s (%d ans)" % (self._system.current_user.birthdate,
+                                                            self._system.current_user.age)
+        Label(frame2, text=username, bg="ghost white", anchor=W).pack(pady=(0, 5), fill=BOTH)
+        Label(frame2, text=birthdate, bg="ghost white", anchor=W).pack(pady=(0, 5), fill=BOTH)
+
+        # Navigation
+        Button(form, text="<< Précédent", width=13, state=DISABLED).grid(row=2, column=1, pady=5, padx=(0, 250))
         Button(form, text="Terminer", width=13, command=self.save_changes).grid(row=2, column=2, pady=5, padx=(0, 100))
         Button(form, text="Suivant >>", width=13, command=self.page_2).grid(row=2, column=2, pady=5, padx=(250, 0))
         return form
 
     def preferences_form(self):
+        """ Crée et renvoie le formulaire sur les préférences utilisateur (page 2) """
         form = LabelFrame(self, text="Gestion du profil utilisateur (page 2)", width=940, height=540, bg="ghost white")
 
         frame = Frame(form, width=900, height=470, bg="ghost white")
         frame.grid(row=1, column=1, columnspan=2, padx=20)
         frame.pack_propagate(0)
-        Label(frame, text="3. Préférences d'optimisation pour les trajets", font=("Helvetica", 16, "bold"),
+        Label(frame, text="4. Préférences d'optimisation pour les trajets", font=("Helvetica", 16, "bold"),
               bg="ghost white", anchor=W).pack(pady=20, fill=BOTH)
         Label(frame, text="Quelle importance accordez-vous aux critères d'optimisation suivants ?",
               bg="ghost white", anchor=W, justify=LEFT).pack(pady=(0, 10), fill=BOTH)
@@ -215,13 +234,15 @@ class ProfilePage(Frame):
         Label(frame, text="* compte tenu des bagages à transporter", font=italic, bg="ghost white", anchor=W)\
             .pack(padx=10, pady=10, fill=BOTH)
 
+        # Navigation
         Button(form, text="<< Précédent", width=13, command=self.page_1).grid(row=2, column=1, pady=5, padx=(0, 250))
         Button(form, text="Terminer", width=13, command=self.save_changes).grid(row=2, column=2, pady=5, padx=(0, 100))
         Button(form, text="Suivant >>", width=13, state=DISABLED).grid(row=2, column=2, pady=5, padx=(250, 0))
         return form
 
     def save_changes(self):
-        # Titres de transport
+        """ Enregistre les changements du profil utilisateur et redirige vers la page principale de la plateforme """
+
         velib, autolib, subway = None, None, None
         for key, value in VELIB_SUBSCRIPTIONS.iteritems():
             if self._velib.get() == value:
@@ -250,6 +271,7 @@ class ProfilePage(Frame):
             showerror('Erreur système', result["error"])
             return
 
+        # Redirection vers la page principale
         from settings import RideSettingsPage
         self.pack_forget()
         RideSettingsPage(self._window, self._system)
