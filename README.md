@@ -3,7 +3,7 @@
 Attention ! Ce projet est codé avec la version 2.7 de python.  
 Pour vérifier la version de python que vous utilisez, tapez la commande suivante dans votre console:  
 `$ python --version`  
-Si python 2.7 n'est pas installé sur votre machine, vous devez le télécharger à l'adresse https://www.python.org/downloads/
+Si python 2.7 n'est pas installé sur votre machine, allez le télécharger à l'adresse https://www.python.org/downloads/
 
 Etapes à suivre pour lancer l'interface graphique :
 - Téléchargez le projet entier sur votre machine  
@@ -11,8 +11,8 @@ Etapes à suivre pour lancer l'interface graphique :
     x soit directement depuis git avec la commande `$ git clone https://github.com/LucieHammond/CityMapper`
 - Ouvrez un terminal à la racine du projet
 - Tapez les commandes suivantes :  
-    `$ export PYTHONPATH=$PYTHONPATH:'pwd'`  
-    `$ python2.7 gui/home.py`  
+    `$ export PYTHONPATH=$PYTHONPATH:'pwd'`  
+    `$ python2.7 gui/home.py`
 
 Pour lancer les tests unitaires sur tout le projet, vous pouvez lancer la commande suivante :  
 `$ python2.7 -m unittest discover`
