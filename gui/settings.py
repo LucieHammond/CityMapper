@@ -86,7 +86,7 @@ class RideSettingsPage(Frame):
     def display_map(self):
         """ Ajoute une carte de Paris à gauche """
         self._map = Canvas(self, width=600, height=500, highlightthickness=0)
-        self._image = PhotoImage(file="../resources/map.gif")
+        self._image = PhotoImage(file="resources/map.gif")
         self._map.create_image(0, 0, anchor=NW, image=self._image)
         self._map.pack(side=LEFT, padx=20, pady=35)
 

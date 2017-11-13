@@ -14,10 +14,10 @@ class WeatherFrame(LabelFrame):
         self._weather = weather
 
         # Icons Météo
-        self._temperature = PhotoImage(file="../resources/temp.gif")
-        self._rain = PhotoImage(file="../resources/rain.gif")
-        self._wind = PhotoImage(file="../resources/wind.gif")
-        self._snow = PhotoImage(file="../resources/snow.gif")
+        self._temperature = PhotoImage(file="resources/temp.gif")
+        self._rain = PhotoImage(file="resources/rain.gif")
+        self._wind = PhotoImage(file="resources/wind.gif")
+        self._snow = PhotoImage(file="resources/snow.gif")
         self.display_forecast()
 
     def display_forecast(self):
@@ -48,10 +48,10 @@ class ResultFrame(Frame):
     """ Frame dédié à l'affichage d'un itinéraire trouvé (résumé et détails)"""
 
     # Icons flat des transports
-    velib = PhotoImage(file="../resources/velib.gif")
-    autolib = PhotoImage(file="../resources/autolib.gif")
-    subway = PhotoImage(file="../resources/subway.gif")
-    walk = PhotoImage(file="../resources/walk.gif")
+    velib = PhotoImage(file="resources/velib.gif")
+    autolib = PhotoImage(file="resources/autolib.gif")
+    subway = PhotoImage(file="resources/subway.gif")
+    walk = PhotoImage(file="resources/walk.gif")
 
     def __init__(self, parent, route, new_details_frame):
         Frame.__init__(self, parent, width=340, highlightbackground="black", highlightthickness=1)

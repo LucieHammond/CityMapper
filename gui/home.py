@@ -30,7 +30,7 @@ class HomePage(Frame):
         """ Crée et renvoie le frame de base avec le logo de la plateforme et les boutons Inscription/Connexion """
         frame = Frame(self, width=940, height=540, bg="DarkSeaGreen2", relief=SUNKEN, borderwidth=2)
         image_panel = Canvas(frame, width=900, height=425, bg="DarkSeaGreen2", highlightthickness=0)
-        self._image = PhotoImage(file="../resources/logo.gif")
+        self._image = PhotoImage(file="resources/logo.gif")
         image_panel.create_image(0, 0, anchor=NW, image=self._image)
         image_panel.pack(side=TOP, padx=20)
         sign_up = Button(frame, text="Inscription", width=20, highlightbackground="DarkSeaGreen2",
