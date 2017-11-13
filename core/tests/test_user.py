@@ -39,7 +39,7 @@ class UserTest(unittest.TestCase):
         self.assertEqual(sorted(user_2.preferences.keys()),
                          [CHEAPEST, FASTEST, LESS_PAINFUL, LESS_WALKING, SHORTEST, SIMPLEST, WEATHER_IMPACT])
         for value in user_2.preferences.values():
-            self.assertIn(value, range(0,7))
+            self.assertIn(value, range(0, 6))
 
     def test_subscriptions(self):
 

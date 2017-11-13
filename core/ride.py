@@ -7,7 +7,6 @@ from routes.transit import SubwayRoute
 from core.tasks import TasksManager
 from constants import FASTEST, SHORTEST, CHEAPEST, LESS_WALKING, SIMPLEST, WEATHER_IMPACT, LESS_PAINFUL, \
     SUITCASE, BULKY, BACKPACK, HANDBAG
-from operator import itemgetter
 import time
 
 associated_params = {FASTEST: "time", SHORTEST: "distance", CHEAPEST: "price", LESS_WALKING: "walking_time",
@@ -22,13 +21,13 @@ class Ride(object):
             raise ValueError("Date de départ invalide : {}. \n"
                              "Le moment du départ ne peut pas antérieur à la date actuelle".format(departure_time))
 
-        self._user = user
-        self._start = start
-        self._end = end
-        self._departure_time = departure_time  # format = timestamp
+        self._user = user  # Utilisateur qui a demandé le trajet
+        self._start = start  # Point de départ
+        self._end = end  # Point d'arrivée
+        self._departure_time = departure_time  # Moment du départ (format = timestamp)
 
-        self._travellers = 1  # Nombre de voyageurs
-        self._luggage = dict()
+        self._travellers = 1  # Nombre de voyageurs (on suppose qu'ils ont tous les mêmes titres de transport)
+        self._luggage = dict()  # Bagages - Ex : {"BACKPACK": 1, "HANDBAG": 2}
 
         # Les préférences pour le trajet sont celles définies dans le profil de l'utilisateur
         self._preferences = user.preferences
@@ -61,6 +60,8 @@ class Ride(object):
     @travellers.setter
     def travellers(self, value):
         """ :type value: int """
+        if value < 1:
+            raise ValueError
         self._travellers = value
 
     @property
@@ -139,10 +140,14 @@ class Ride(object):
         if unsuitable_msg:
             unsuitable_routes.append({"mode": "autolib", "msg": unsuitable_msg})
 
+        # Si 0 ou 1 itinéraire possible, pas besoin d'ordonner
         if len(possible_routes) <= 1:
             return possible_routes, unsuitable_routes
 
+        # Calculer les scores des itinéraires pour chaque paramêtre quantifiable
         scores = self._compute_scores(possible_routes)
+
+        # Classer les itinéraires en fonction des préférences de l'utilisateur connaissant leurs scores
         ordered_routes = self._compare_routes(scores)
         return ordered_routes, unsuitable_routes
 
@@ -182,10 +187,13 @@ class Ride(object):
 
     @staticmethod
     def _compute_scores(possible_routes):
-        """ Calcule pour chaque itinéraire et pour chaque critère un score (float) entre 0 (meilleur) et 1 (moins bon)
+        """ Calcule pour chaque itinéraire et pour chaque critère un score (float)
+        Le score quantifie les défauts de l'itinéraire sur une échelle qui se veut comparable entre les paramêtres
+        Le score sans défaut est égal à 0 (pas toujours atteint) et le score 1 est significativement moins bon.
+        Il est rare de dépasser un score de 2 pour un paramêtre
 
         :param possible_routes: liste des itinéraires possibles (de type Route)
-        :return: dictionnaire des scores {route1: {critère1: score1, critère2: score2 ...}, ... }
+        :return: dictionnaire des scores {route1: {critère1: score1, critère2: score2 ...}, route2: ... }
 
         """
 
@@ -193,28 +201,31 @@ class Ride(object):
         def normalize_score(score, ref_mini, ref_maxi):
             return (float(score) - float(ref_mini)) / (float(ref_maxi) - float(ref_mini))
 
-        def get_property(route, property):
-            dict = {"time": route.time,
-                    "distance": route.distance,
-                    "price": route.price,
-                    "difficulty": route.difficulty,
-                    "walking_time": route.walking_time,
-                    "weather_impact": route.weather_impact,
-                    "transfers_nb": route.transfers_nb}
-            return dict[property]
+        # Récupère une propriété de l'itinéraire (Route) à partir du string correspondant
+        def get_property(p_route, prop):
+            dico = {"time": p_route.time,
+                    "distance": p_route.distance,
+                    "price": p_route.price,
+                    "difficulty": p_route.difficulty,
+                    "walking_time": p_route.walking_time,
+                    "weather_impact": p_route.weather_impact,
+                    "transfers_nb": p_route.transfers_nb}
+            return dico[prop]
 
         scores = dict.fromkeys(possible_routes)
         for route in scores.keys():
             scores[route] = {}
 
-        ref_min = dict({"price": 0, "transfers_nb": 2, "difficulty": 0, "weather_impact": 0})
-        ref_max = dict({"price": 5, "transfers_nb": 4, "difficulty": 100, "weather_impact": 100})
+        # Reférences de normalisation pour les paramètres (ref_min => score=0, ref_max => score=1)
+        # Ce barême amélioré à la main donne des résultats de classements plutôts corrects et intuitifs
+        ref_min = dict({"price": 0, "transfers_nb": 0, "difficulty": 0, "weather_impact": 0})
+        ref_max = dict({"price": 5, "transfers_nb": 2, "difficulty": 100, "weather_impact": 100})
         ref_min["time"] = min([route.time for route in possible_routes])
         ref_min["distance"] = min([route.distance for route in possible_routes])
         ref_min["walking_time"] = min([route.walking_time for route in possible_routes])
-        ref_max["time"] = 1.4 * ref_min["time"]
-        ref_max["distance"] = 1.4 * ref_min["distance"]
-        ref_max["walking_time"] = 1.2 * ref_min["walking_time"] + 5
+        ref_max["time"] = 1.3 * ref_min["time"] + 30
+        ref_max["distance"] = 1.3 * ref_min["distance"] + 30
+        ref_max["walking_time"] = 1.25 * ref_min["walking_time"] + 7*60
 
         for param in associated_params.values():
             for route in possible_routes:
@@ -233,10 +244,10 @@ class Ride(object):
 
         preferences = self._user.preferences
         for route, score in scores.items():
+            # Note = somme pondérée des scores
             grade = sum([preferences[criteria] * score[param] for criteria, param in associated_params.items()])
             scores[route]["grade"] = grade
-            print route, score
 
+        # Renvoyer la liste ordonnée des routes suivant leur note globale
         sorted_scores = sorted(scores.items(), key=lambda x: x[1]["grade"])
-
         return [score[0] for score in sorted_scores]

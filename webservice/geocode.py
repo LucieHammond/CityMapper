@@ -9,14 +9,19 @@ ZERO_RESULTS = "ZERO_RESULTS"
 
 class Geocode(ApiManager):
     """ Web Service de conversion d'une adresse écrite (chaine de caractère) en coordonnées géographies
-        Ce service qui fait appel à l'API Géocode de Google Maps """
+        Ce service fait appel à l'API Géocode de Google Maps """
 
     def __init__(self):
         default_settings = {"key": API_KEY}
         ApiManager.__init__(self, GEOCODE_API_URL, default_settings)
 
     def get_from_api(self, address):
-        params=dict()
+        """ Renvoie les coordonnées géographiques correspondant à l'adresse donnée
+
+        :param address: adresse à rechercher (chaine de caractère indiquant le numéro, la rue, la ville...)
+        :return: point géographique au format (latitude, longitude)
+        """
+        params = dict()
         params["address"] = address
 
         try:
@@ -36,11 +41,12 @@ class Geocode(ApiManager):
 
     @staticmethod
     def _parse_response(response):
+        """ Analyse de la réponse obtenue"""
 
         geometry = response["results"][0]["geometry"]
         latitude = geometry["location"]["lat"]
         longitude = geometry["location"]["lng"]
-        return (latitude, longitude)
+        return latitude, longitude
 
 
 class ZeroResultsError(Exception):

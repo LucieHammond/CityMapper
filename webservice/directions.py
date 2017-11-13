@@ -31,7 +31,6 @@ class Directions(ApiManager):
         params["mode"] = mode
         if mode == TRANSIT_MODE:
             params["departure_time"] = int(departure_time)
-            params["transit_mode"] = "subway"
             if routing_preference:
                 params["transit_routing_preference"] = routing_preference
         try:

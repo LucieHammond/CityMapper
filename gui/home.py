@@ -8,6 +8,7 @@ import re
 
 
 class HomePage(Frame):
+    """ Ecran d'accueil qui permet à l'utilisateur de s'inscrire ou de se connecter à la plateforme """
 
     def __init__(self, window, system):
         Frame.__init__(self, window, width=1000, height=600, bg="DarkSeaGreen1")
@@ -26,6 +27,7 @@ class HomePage(Frame):
         self.frame.pack_propagate(0)
 
     def home_frame(self):
+        """ Crée et renvoie le frame de base avec le logo de la plateforme et les boutons Inscription/Connexion """
         frame = Frame(self, width=940, height=540, bg="DarkSeaGreen2", relief=SUNKEN, borderwidth=2)
         image_panel = Canvas(frame, width=900, height=425, bg="DarkSeaGreen2", highlightthickness=0)
         self._image = PhotoImage(file="../resources/logo.gif")
@@ -40,6 +42,7 @@ class HomePage(Frame):
         return frame
 
     def connection_form(self):
+        """ Crée et renvoie le formulaire de connexion (placé dans un LabelFrame) """
         form = LabelFrame(self, text="Connection", width=400, height=400, bg="ghost white")
 
         Label(form, text="Nom d'utilisateur :", bg="ghost white").pack(pady=(40, 0))
@@ -62,6 +65,7 @@ class HomePage(Frame):
         return form
 
     def registration_form(self):
+        """ Crée et renvoie le formulaire d'inscription (placé dans un LabelFrame) """
         form = LabelFrame(self, text="Inscription", width=400, height=400, bg="ghost white")
 
         Label(form, text="Nom d'utilisateur :", bg="ghost white").pack(pady=(40, 0))
@@ -81,24 +85,29 @@ class HomePage(Frame):
         return form
 
     def start_connection(self):
+        """ Affiche le formulaire de connexion """
         self.frame.pack_forget()
         self.frame = self.connection_form()
         self.frame.pack(fill=BOTH, expand=YES, padx=300, pady=100)
         self.frame.pack_propagate(0)
 
     def start_registration(self):
+        """ Affiche le formulaire d'inscription """
         self.frame.pack_forget()
         self.frame = self.registration_form()
         self.frame.pack(fill=BOTH, expand=YES, padx=300, pady=100)
         self.frame.pack_propagate(0)
 
     def get_back(self):
+        """ Affiche l'écran d'accueil avec le logo """
         self.frame.pack_forget()
         self.frame = self.home_frame()
         self.frame.pack(padx=30, pady=30)
         self.frame.pack_propagate(0)
 
     def sign_up(self):
+        """ Essaye d'inscrire l'utilisateur avec les données d'identification saisies dans le formulaire """
+
         # Vérifie le format des données et transforme la date string en date datetime
         if not self._username.get() or not self._password.get() or not self._birthdate.get():
             showwarning('Saisie incorrecte', "Vous devez renseigner tous les champs demandés")
@@ -127,6 +136,8 @@ class HomePage(Frame):
         ProfilePage(self._window, self._system)
 
     def sign_in(self):
+        """ Essaye de connecter l'utilisateur à partir des données d'identification saisies dans le formulaire """
+
         # Vérifie le format des données
         if not self._username.get() or not self._password.get():
             showwarning('Saisie incorrecte', "Vous devez renseigner tous les champs demandés")
@@ -141,10 +152,11 @@ class HomePage(Frame):
         RideSettingsPage(self._window, self._system)
 
 
+# Point d'entrée de l'interface graphique
 if __name__ == "__main__":
     main_window = Tk()
     main_window.title("Comment y aller ?")
-    system = HowToGoSystem()
-    home_page = HomePage(main_window, system)
+    HTGS = HowToGoSystem()
+    home_page = HomePage(main_window, HTGS)
     main_window.resizable(0, 0)
     main_window.mainloop()

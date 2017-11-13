@@ -20,7 +20,7 @@ class AutolibRouteTest(unittest.TestCase):
 
     def setUp(self):
         user = User("Martin_dupond", "azerty", date.today() - timedelta(days=10000))
-        self.ride = Ride(user, (48.829728, 2.356414), (48.885599, 2.343342), time.time() + 60)
+        self.ride = Ride(user, (48.829728, 2.356414), (48.880353, 2.351543), time.time() + 24*3600)
         self.route = AutolibRoute(self.ride)
         self.success = self.route.calculate_route()
 
@@ -31,8 +31,8 @@ class AutolibRouteTest(unittest.TestCase):
         # Vérifie la cohérence des stations trouvées
         self.assertIsNotNone(self.route.start_station)
         self.assertIsNotNone(self.route.end_station)
-        self.assertEqual(sorted(self.route.start_station.keys()), ["address", "geo_point", "places", "public_name"])
-        self.assertEqual(sorted(self.route.end_station.keys()), ["address", "geo_point", "places", "public_name"])
+        self.assertEqual(sorted(self.route.start_station.keys()), ["address", "geo_point", "public_name"])
+        self.assertEqual(sorted(self.route.end_station.keys()), ["address", "geo_point", "public_name"])
         self.assertLessEqual(_distance_between(self.ride.start, self.route.start_station["geo_point"]), 1300)
         self.assertLessEqual(_distance_between(self.ride.end, self.route.end_station["geo_point"]), 1300)
 
@@ -42,7 +42,7 @@ class AutolibRouteTest(unittest.TestCase):
         self.assertEqual(self.route.walking_time, self.route.steps[0]["time"] + self.route.steps[2]["time"])
         self.assertLessEqual(self.route.walking_time, self.route.time)
         self.assertGreaterEqual(self.route.distance, _distance_between(self.ride.start, self.ride.end))
-        self.assertEqual(self.route.transfers_nb, 2)
+        self.assertEqual(self.route.transfers_nb, 0)
 
         # Comparaisons des résultats trouvés par critère de recherche
         # --- par défault c'était le plus rapide
@@ -51,16 +51,16 @@ class AutolibRouteTest(unittest.TestCase):
         walking_fastest = self.route.walking_time
 
         # --- le moins de marche
-        self.ride.preferences = {FASTEST: 1, SHORTEST: 0, CHEAPEST: 3, LESS_WALKING: 5, SIMPLEST: 2, WEATHER_IMPACT: 6,
-                                 LESS_PAINFUL: 4}
+        self.ride.user.preferences = {FASTEST: 1, SHORTEST: 0, CHEAPEST: 3, LESS_WALKING: 5, SIMPLEST: 2,
+                                      WEATHER_IMPACT: 5, LESS_PAINFUL: 4}
         self.route = AutolibRoute(self.ride)
         self.route.calculate_route()
         self.assertGreaterEqual(self.route.time, time_fastest)
         self.assertLessEqual(self.route.walking_time, walking_fastest)
 
         # --- le plus court en distance
-        self.ride.preferences = {FASTEST: 0, SHORTEST: 5, CHEAPEST: 3, LESS_WALKING: 1, SIMPLEST: 2, WEATHER_IMPACT: 6,
-                                 LESS_PAINFUL: 4}
+        self.ride.user.preferences = {FASTEST: 0, SHORTEST: 5, CHEAPEST: 3, LESS_WALKING: 1, SIMPLEST: 2,
+                                      WEATHER_IMPACT: 5, LESS_PAINFUL: 4}
         self.route = AutolibRoute(self.ride)
         self.route.calculate_route()
         self.assertGreaterEqual(self.route.time, time_fastest)

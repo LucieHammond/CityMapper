@@ -24,34 +24,18 @@ class SubwayRoute(Route):
         L'itinéraire est récupéré depuis l'API Directions de Google Maps
         """
 
-        directions = Directions()
-        ride = self._ride
-
         # Critères de préférence pour la différentiation des itinéraires similaires
         search_criterion = self._define_search_criteria()
         route = self._optimize_route(search_criterion)
 
         # On peut maintenant définir les caractéristiques de la route trouvée
         self._time = route["main"]["time"]
-        self._dist = route["main"]["dist"]
+        self._distance = route["main"]["dist"]
 
-        transfers_nb = 0
         self._steps = list()
-        last_station = None
         for step in route["steps"]:
             if step["dist"] != 0 or step["time"] != 0:
                 self._steps.append(step)
-            if step["mode"] == TRANSIT_MODE:
-                start_station = step["details"]["start"]
-                end_station = step["details"]["end"]
-
-                if not last_station or last_station["name"] != start_station["name"]:
-                    transfers_nb += 1
-
-                last_station = end_station
-                transfers_nb += 1
-
-        self._transfers_nb = transfers_nb
 
         walking_time = sum([step["time"] for step in route["steps"] if step["mode"] == WALKING_MODE])
         transit_time = sum([step["time"] for step in route["steps"] if step["mode"] == TRANSIT_MODE])
@@ -121,11 +105,11 @@ class SubwayRoute(Route):
         if subscription == SUBWAY_NAVIGO_SUBSCRIPTION:
             return 0
         elif subscription == SUBWAY_TICKETS_BOOK:
-            return round(TEN_TICKETS_PRICE / 10.0, 2)
+            return round(TEN_TICKETS_PRICE / 10.0, 2) * self._ride.travellers
         elif subscription == SUBWAY_TICKETS_REDUCED:
-            return round(TEN_TICKETS_REDUCED_PRICE / 10.0, 2)
+            return round(TEN_TICKETS_REDUCED_PRICE / 10.0, 2) * self._ride.travellers
         else:
-            return ONE_TICKET_PRICE
+            return ONE_TICKET_PRICE * self._ride.travellers
 
     def _compute_difficulty(self):
         """ Calcule degré d'inconfort lié à la charge portée par le voyageur """
