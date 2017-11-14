@@ -54,7 +54,7 @@ class ResultFrame(Frame):
     walk = PhotoImage(file="resources/walk.gif")
 
     def __init__(self, parent, route, new_details_frame):
-        Frame.__init__(self, parent, width=340, bg="white", highlightbackground="black", highlightthickness=1)
+        Frame.__init__(self, parent, width=340, highlightbackground="black", highlightthickness=1)
         self._route = route
         self._new_details_frame = new_details_frame
 
@@ -157,9 +157,9 @@ class ResultFrame(Frame):
         next_station = None
 
         # Fonts
-        normal = ("Helvetica", 12, "normal") if OSX else ("Helvetica", 10, "normal")
-        bold = ("Helvetica", 14, "bold") if OSX else ("Helvetica", 12, "bold")
-        italic = ("Helvetica", 12, "italic") if OSX else ("Helvetica", 10, "italic")
+        normal = ("Helvetica", 12, "normal") if OSX else ("Helvetica", 9, "normal")
+        bold = ("Helvetica", 14, "bold") if OSX else ("Helvetica", 11, "bold")
+        italic = ("Helvetica", 12, "italic") if OSX else ("Helvetica", 8, "italic")
         small = ("Calibri", 8, "normal") if OSX else ("Calibri", 5, "normal")
         small_italic = ("Helvetica", 10, "italic") if OSX else ("Helvetica", 8, "italic")
 
@@ -366,7 +366,7 @@ class ResultsPage(Frame):
     @staticmethod
     def unsuitable_route(parent, route):
         """ Créer et renvoyer un frame de description pour un mode de transport 'route' non retenu """
-        frame = Frame(parent, width=340, bg="white", highlightbackground="black", highlightthickness=1)
+        frame = Frame(parent, width=340, highlightbackground="black", highlightthickness=1)
 
         # Répartir le texte du message d'erreur sur plusieurs lignes pour ne pas qu'il dépasse sur les côtés
         message = route["msg"]
@@ -398,7 +398,7 @@ class ResultsPage(Frame):
         def configuration(event):
             canvas.configure(scrollregion=canvas.bbox("all"))
 
-        self._details = Frame(self, highlightbackground="black", bg="white", highlightthickness=1, height=315)
+        self._details = Frame(self, highlightbackground="black", highlightthickness=1, height=315)
         self._details.pack(side=TOP, fill=BOTH, expand=YES)
         self._details.pack_propagate(0)
 
