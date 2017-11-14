@@ -54,7 +54,7 @@ class ResultFrame(Frame):
     walk = PhotoImage(file="resources/walk.gif")
 
     def __init__(self, parent, route, new_details_frame):
-        Frame.__init__(self, parent, width=340, highlightbackground="black", highlightthickness=1)
+        Frame.__init__(self, parent, width=340, bg="white", highlightbackground="black", highlightthickness=1)
         self._route = route
         self._new_details_frame = new_details_frame
 
@@ -105,9 +105,9 @@ class ResultFrame(Frame):
         elif self._route.difficulty <= 50: difficulty = "Charges: -"
         else: difficulty = "Charges: --"
 
-        italic = ("Lucida", 14, "italic") if OSX else ("Calibri", 12, "italic")
-        big = ("Helvetica", 18, "normal") if OSX else ("Helvetica", 16, "normal")
-        bold = ("Helvetica", 16, "bold") if OSX else ("Helvetica", 14, "bold")
+        italic = ("Lucida", 14, "italic") if OSX else ("Calibri", 10, "italic")
+        big = ("Helvetica", 18, "normal") if OSX else ("Helvetica", 14, "normal")
+        bold = ("Helvetica", 16, "bold") if OSX else ("Helvetica", 12, "bold")
 
         # Première ligne récapitulative
         first_line = Frame(frame, width=340, height=40)
@@ -160,7 +160,7 @@ class ResultFrame(Frame):
         normal = ("Helvetica", 12, "normal") if OSX else ("Helvetica", 10, "normal")
         bold = ("Helvetica", 14, "bold") if OSX else ("Helvetica", 12, "bold")
         italic = ("Helvetica", 12, "italic") if OSX else ("Helvetica", 10, "italic")
-        small = ("Calibri", 8, "normal")
+        small = ("Calibri", 8, "normal") if OSX else ("Calibri", 5, "normal")
         small_italic = ("Helvetica", 10, "italic") if OSX else ("Helvetica", 8, "italic")
 
         # Départ
@@ -366,7 +366,7 @@ class ResultsPage(Frame):
     @staticmethod
     def unsuitable_route(parent, route):
         """ Créer et renvoyer un frame de description pour un mode de transport 'route' non retenu """
-        frame = Frame(parent, width=340, highlightbackground="black", highlightthickness=1)
+        frame = Frame(parent, width=340, bg="white", highlightbackground="black", highlightthickness=1)
 
         # Répartir le texte du message d'erreur sur plusieurs lignes pour ne pas qu'il dépasse sur les côtés
         message = route["msg"]
@@ -398,7 +398,7 @@ class ResultsPage(Frame):
         def configuration(event):
             canvas.configure(scrollregion=canvas.bbox("all"))
 
-        self._details = Frame(self, highlightbackground="black", highlightthickness=1, height=315)
+        self._details = Frame(self, highlightbackground="black", bg="white", highlightthickness=1, height=315)
         self._details.pack(side=TOP, fill=BOTH, expand=YES)
         self._details.pack_propagate(0)
 
@@ -416,7 +416,7 @@ class ResultsPage(Frame):
         header = Frame(frame, bg="snow2", height=45, width=340)
         header.pack(fill=BOTH, expand=YES)
         header.pack_propagate(0)
-        font = ("Helvetica", 20, "bold") if OSX else ("Helvetica", 18, "bold")
+        font = ("Helvetica", 20, "bold") if OSX else ("Helvetica", 16, "bold")
         Button(header, text="<", font=font, width=1, highlightbackground="snow2",
                command=self.display_results_list).pack(padx=10, side=LEFT)
 
