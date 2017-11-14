@@ -5,7 +5,9 @@ Pour vérifier la version du logiciel que vous utilisez, tapez la commande suiva
 `$ python --version`  
 Si python 2.7 n'est pas installé sur votre machine, téléchargez-le à l'adresse https://www.python.org/downloads/
 
+
 ### Etapes à suivre pour installer le projet et lancer l'interface graphique :
+
 1) Téléchargement du projet  
     - *Méthode 1* : Récupérez le dossier .zip envoyé sur Claroline, décompressez-le puis ouvrez un terminal à la racine du projet  
     - *Méthode 2* : Télécharger le projet depuis gitHub et placez vous à la racine avec les commandes suivantes  
@@ -20,16 +22,18 @@ Si python 2.7 n'est pas installé sur votre machine, téléchargez-le à l'adres
   `$ pip install python-dateutil`  
   `$ pip install requests`
 
-4) Lancement de l'interface graphique  
+3) Lancement de l'interface graphique  
     - *Sur Mac OSX ou Linux* : Lancez le script run.sh avec la commande `$ ./run.sh`  
     - *Sur Windows* : 
       - Ajoutez le chemin du répertoire CityMapper au pythonpath de votre machine. Pour cela allez dans `My Computer > Properties > Advanced System Settings > Environment Variables` pour Windows XP et 7, ou dans `Start > Settings > System > About > System Info > Advanced System Settings > Environnement variables` pour Windows 10 et modifiez la variable PYTHONPATH (ou Path) en y ajoutant le chemin du répertoire après le signe ;  
       - Exécutez la commande `$ python2.7 gui/home.py`
 
-5) Si vous souhaitez lancer des tests unitaires sur tout le projet, la commande à utiliser est :   
+4) Si vous souhaitez lancer des tests unitaires sur tout le projet, la commande à utiliser est :   
 `$ python2.7 -m unittest discover`
 
+
 ### A savoir :
+
 - Le système que nous avons conçu permet à un ou plusieurs utilisateurs de s'enregistrer sur la plateforme pour définir
 leurs informations de titres de transports et leurs préférences, puis de s'y reconnecter ultérieurement avec un mot de passe.
 Néanmoins, nous n'avons pas implémenté de BDD extérieure permanente pour stocker ces informations.
