@@ -5,7 +5,7 @@ from tkMessageBox import *
 from constants import VELIB_NO_SUBSCRIPTION, VELIB_TICKETS_30M, VELIB_SUBSCRIPTION_30M, VELIB_SUBSCRIPTION_45M,\
     AUTOLIB_PRET_A_ROULER, AUTOLIB_FIRST_RENTING_OFFER, AUTOLIB_PREMIUM,\
     SUBWAY_NAVIGO_SUBSCRIPTION, SUBWAY_TICKETS_BOOK, SUBWAY_TICKETS_REDUCED, SUBWAY_NO_TITLE,\
-    FASTEST, LESS_WALKING, CHEAPEST, WEATHER_IMPACT, LESS_PAINFUL, SIMPLEST, SHORTEST
+    FASTEST, LESS_WALKING, CHEAPEST, WEATHER_IMPACT, LESS_PAINFUL, SIMPLEST, SHORTEST, OSX
 
 VELIB_SUBSCRIPTIONS = {VELIB_SUBSCRIPTION_30M: u"Abonnement Vélib' Classique (30 min offertes)",
                        VELIB_SUBSCRIPTION_45M: u"Abonnement Vélib' Passion ou Vélib' Solidarité (45 min offertes)",
@@ -79,33 +79,31 @@ class ProfilePage(Frame):
     def subscriptions_form(self):
         """ Crée et renvoie le formulaire sur les infos de transport (page 1) """
         form = LabelFrame(self, text="Gestion du profil utilisateur (page 1)", width=940, height=540, bg="ghost white")
+        h1 = ("Helvetica", 16, "bold") if OSX else ("Helvetica", 15, "bold")
+        h2 = ("Lucida", 14, "bold") if OSX else ("Calibri", 12, "bold")
 
         # Titres de transport
         frame1 = Frame(form, width=450, height=470, bg="ghost white")
         frame1.grid(row=1, column=1, padx=(20, 0))
         frame1.pack_propagate(0)
-        Label(frame1, text="1. Titres de transport", font=("Helvetica", 16, "bold"), bg="ghost white", anchor=W)\
-            .pack(pady=20, fill=BOTH)
+        Label(frame1, text="1. Titres de transport", font=h1, bg="ghost white", anchor=W).pack(pady=20, fill=BOTH)
         Label(frame1, text="De quels forfaits ou abonnements disposez vous pour les moyens\nde transports suivants ?",
               bg="ghost white", anchor=W, justify=LEFT).pack(pady=(0, 10), fill=BOTH)
 
         # - Forfaits Vélib
-        Label(frame1, text="Vélib", bg="ghost white", font=("Lucida", 14, "bold"), anchor=W) \
-            .pack(pady=(10, 0), padx=(10, 0), fill=BOTH)
+        Label(frame1, text="Vélib", bg="ghost white", font=h2, anchor=W).pack(pady=(10, 0), padx=(10, 0), fill=BOTH)
         velib_options = OptionMenu(frame1, self._velib, *VELIB_SUBSCRIPTIONS.values())
         velib_options.config(width=50)
         velib_options.pack(padx=(0, 20))
 
         # - Forfaits Autolib
-        Label(frame1, text="Autolib", bg="ghost white", font=("Lucida", 14, "bold"), anchor=W) \
-            .pack(pady=(15, 0), padx=(10, 0), fill=BOTH)
+        Label(frame1, text="Autolib", bg="ghost white", font=h2, anchor=W).pack(pady=(15, 0), padx=(10, 0), fill=BOTH)
         autolib_options = OptionMenu(frame1, self._autolib, *AUTOLIB_SUBSCRIPTIONS.values())
         autolib_options.config(width=50)
         autolib_options.pack(padx=(0, 20))
 
         # - Forfaits RATP
-        Label(frame1, text="Transports en commun", bg="ghost white", font=("Lucida", 14, "bold"), anchor=W) \
-            .pack(pady=(15, 0), padx=(10, 0), fill=BOTH)
+        Label(frame1, text="Transports en commun", bg="ghost white", font=h2, anchor=W).pack(pady=(15, 0), padx=(10, 0), fill=BOTH)
         autolib_options = OptionMenu(frame1, self._subway, *SUBWAY_SUBSCRIPTIONS.values())
         autolib_options.config(width=50)
         autolib_options.pack(padx=(0, 20))
@@ -114,13 +112,12 @@ class ProfilePage(Frame):
         frame2 = Frame(form, width=450, height=470, bg="ghost white")
         frame2.grid(row=1, column=2, padx=(0, 20))
         frame2.pack_propagate(0)
-        Label(frame2, text="2. Permis de conduire", font=("Helvetica", 16, "bold"), bg="ghost white", anchor=W)\
-            .pack(pady=20, fill=BOTH)
+        Label(frame2, text="2. Permis de conduire", font=h1, bg="ghost white", anchor=W).pack(pady=20, fill=BOTH)
         Checkbutton(frame2, text=" Je suis en posséssion d'un permis de conduire valide", bg="ghost white", anchor=W,
                     variable=self._driving_licence, justify=LEFT).pack(pady=(0, 10), fill=BOTH)
 
         # Informations globales
-        Label(frame2, text="3. Informations globales", font=("Helvetica", 16, "bold"), bg="ghost white", anchor=W) \
+        Label(frame2, text="3. Informations générales", font=h1, bg="ghost white", anchor=W)\
             .pack(pady=(50, 20), fill=BOTH)
         username = " - Nom d'utilisateur : " + self._system.current_user.username
         birthdate = " - Date de naissance : %s (%d ans)" % (self._system.current_user.birthdate,
@@ -137,18 +134,19 @@ class ProfilePage(Frame):
     def preferences_form(self):
         """ Crée et renvoie le formulaire sur les préférences utilisateur (page 2) """
         form = LabelFrame(self, text="Gestion du profil utilisateur (page 2)", width=940, height=540, bg="ghost white")
+        h1 = ("Helvetica", 16, "bold") if OSX else ("Helvetica", 15, "bold")
+        italic = ("Lucida", 14, "italic") if OSX else ("Calibri", 10, "italic")
 
         frame = Frame(form, width=900, height=470, bg="ghost white")
         frame.grid(row=1, column=1, columnspan=2, padx=20)
         frame.pack_propagate(0)
-        Label(frame, text="4. Préférences d'optimisation pour les trajets", font=("Helvetica", 16, "bold"),
+        Label(frame, text="4. Préférences d'optimisation pour les trajets", font=h1,
               bg="ghost white", anchor=W).pack(pady=20, fill=BOTH)
         Label(frame, text="Quelle importance accordez-vous aux critères d'optimisation suivants ?",
               bg="ghost white", anchor=W, justify=LEFT).pack(pady=(0, 10), fill=BOTH)
 
         table = Frame(frame, bg="ghost white")
         table.pack()
-        italic = ("Lucida", 14, "italic")
 
         # Première ligne : degrés d'importance
         Label(table, text="Critères :", bg="ghost white", width=24, anchor=W).grid(row=1, column=1)

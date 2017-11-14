@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import platform
+
 """ Module répertoriant toutes les constantes partagées """
 
 # Critères de préférences pour un trajet
@@ -45,3 +47,6 @@ LINE_COLORS = {'1': '#ffcd00', '2': '#003ca6', '3': '#837902', '3B': '#6ec4e8', 
                '6': '#6eca97', '7': '#fa9aba', '7B': '#6eca97', '8': '#e19bdf', '9': '#b6bd00', '10': '#c9910d',
                '11': '#704b1c', '12': '#007852', '13': '#6ec4e8', '14': '#62259d', 'RER A': '#d1302f',
                'RER B': '#427dbd', 'RER C': '#fcd946', 'RER D': '#5e9620', 'RER E': '#bd76a1', 'Tram T4': '#f2af00'}
+
+# Système d'exploitation (l'affichage est différent suivant les systèmes)
+OSX = (platform.system() == "Darwin")

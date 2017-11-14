@@ -3,7 +3,7 @@
 from Tkinter import *
 from tkMessageBox import *
 from routes import bicycling, driving, transit
-from constants import WALKING_MODE, BICYCLING_MODE, DRIVING_MODE, TRANSIT_MODE, LINE_COLORS
+from constants import WALKING_MODE, BICYCLING_MODE, DRIVING_MODE, TRANSIT_MODE, LINE_COLORS, OSX
 
 
 class WeatherFrame(LabelFrame):
@@ -105,25 +105,29 @@ class ResultFrame(Frame):
         elif self._route.difficulty <= 50: difficulty = "Charges: -"
         else: difficulty = "Charges: --"
 
+        italic = ("Lucida", 14, "italic") if OSX else ("Calibri", 12, "italic")
+        big = ("Helvetica", 18, "normal") if OSX else ("Helvetica", 16, "normal")
+        bold = ("Helvetica", 16, "bold") if OSX else ("Helvetica", 14, "bold")
+
         # Première ligne récapitulative
         first_line = Frame(frame, width=340, height=40)
         icon = Canvas(first_line, width=35, height=35, highlightthickness=0)
         icon.create_image(0, 0, anchor=NW, image=image)
         icon.grid(row=1, column=1, padx=(13, 5), pady=3)
-        Label(first_line, text="%s (%s)" % (time, dist), font=("Helvetica", 18, "normal"), anchor=E, width=16)\
+        Label(first_line, text="%s (%s)" % (time, dist), font=big, anchor=E, width=16)\
             .grid(row=1, column=2, pady=7)
-        Label(first_line, text=price, font=("Lucida", 14, "italic"), width=7).grid(row=1, column=3, pady=7)
+        Label(first_line, text=price, font=italic, width=7).grid(row=1, column=3, pady=7)
         if with_button:
-            Button(first_line, text=">", font=("Helvetica", 16, "bold"), width=1, command=self.display_details)\
+            Button(first_line, text=">", font=bold, width=1, command=self.display_details)\
                 .grid(row=1, column=4, padx=5, pady=7)
 
         # Deuxième ligne récapitulative
         second_line = Frame(frame, width=340, height=50)
-        Label(second_line, text=walk, font=("Lucida", 14, "italic"), width=10)\
+        Label(second_line, text=walk, font=italic, width=10)\
             .grid(row=1, column=1, padx=(8, 0), pady=(0, 5))
-        Label(second_line, text=transfers, font=("Lucida", 14, "italic"), width=4).grid(row=1, column=2, pady=(0, 5))
-        Label(second_line, text=weather, font=("Lucida", 14, "italic"), width=9).grid(row=1, column=3, pady=(0, 5))
-        Label(second_line, text=difficulty, font=("Lucida", 14, "italic"), width=9).grid(row=1, column=4, pady=(0, 5))
+        Label(second_line, text=transfers, font=italic, width=4).grid(row=1, column=2, pady=(0, 5))
+        Label(second_line, text=weather, font=italic, width=9).grid(row=1, column=3, pady=(0, 5))
+        Label(second_line, text=difficulty, font=italic, width=9).grid(row=1, column=4, pady=(0, 5))
 
         return first_line, second_line
 
@@ -153,11 +157,11 @@ class ResultFrame(Frame):
         next_station = None
 
         # Fonts
-        normal = ("Helvetica", 12, "normal")
-        bold = ("Helvetica", 14, "bold")
-        italic = ("Helvetica", 12, "italic")
-        small = ("Colibri", 8, "normal")
-        small_italic = ("Helvetica", 10, "italic")
+        normal = ("Helvetica", 12, "normal") if OSX else ("Helvetica", 10, "normal")
+        bold = ("Helvetica", 14, "bold") if OSX else ("Helvetica", 12, "bold")
+        italic = ("Helvetica", 12, "italic") if OSX else ("Helvetica", 10, "italic")
+        small = ("Calibri", 8, "normal")
+        small_italic = ("Helvetica", 10, "italic") if OSX else ("Helvetica", 8, "italic")
 
         # Départ
         if len(self._route.steps) == 0:
@@ -320,7 +324,8 @@ class ResultsPage(Frame):
         self._bad_routes = bad_routes
 
         WeatherFrame(self, weather).pack(side=TOP, fill=X, expand=YES)
-        Label(self, text="-- Résultats --", font=("Helvetica", 18, "bold"), bg="LightSkyBlue1")\
+        title = ("Helvetica", 18, "bold") if OSX else ("Helvetica", 16, "bold")
+        Label(self, text="-- Résultats --", font=title, bg="LightSkyBlue1")\
             .pack(side=TOP, fill=BOTH, pady=(20, 10))
 
         self._results = Frame(self, bg="snow2", highlightbackground="black", highlightthickness=1, height=315)
@@ -379,7 +384,8 @@ class ResultsPage(Frame):
         icon = Canvas(frame, width=35, height=35, highlightthickness=0)
         icon.create_image(0, 0, anchor=NW, image=image)
         icon.grid(row=1, column=1, padx=13, pady=3)
-        Label(frame, text=message, font=("Lucida", 12, "normal")).grid(row=1, column=2)
+        font = ("Lucida", 12, "normal") if OSX else ("Calibri", 10, "normal")
+        Label(frame, text=message, font=font).grid(row=1, column=2)
         return frame
 
     def new_details_frame(self, route):
@@ -410,7 +416,8 @@ class ResultsPage(Frame):
         header = Frame(frame, bg="snow2", height=45, width=340)
         header.pack(fill=BOTH, expand=YES)
         header.pack_propagate(0)
-        Button(header, text="<", font=("Helvetica", 20, "bold"), width=1, highlightbackground="snow2",
+        font = ("Helvetica", 20, "bold") if OSX else ("Helvetica", 18, "bold")
+        Button(header, text="<", font=font, width=1, highlightbackground="snow2",
                command=self.display_results_list).pack(padx=10, side=LEFT)
 
         # Demander au frame parent (Settings) d'afficher l'itinéraire sur la carte

@@ -4,7 +4,7 @@ from Tkinter import *
 from tkMessageBox import *
 import time
 from constants import BACKPACK, HANDBAG, SUITCASE, BULKY, WALKING_MODE, DRIVING_MODE, BICYCLING_MODE, TRANSIT_MODE, \
-    LINE_COLORS
+    LINE_COLORS, OSX
 
 
 class RideSettingsPage(Frame):
@@ -115,10 +115,11 @@ class RideSettingsPage(Frame):
     def settings_form(self):
         """ Crée et renvoie le formulaire de définition d'un nouveau trajet (qui sera placé à droite) """
         form = Frame(self, bg="LightSkyBlue1")
+        title = ("Helvetica", 18, "bold") if OSX else ("Helvetica", 16, "bold")
 
-        Label(form, text="-- Nouveau trajet --", font=("Helvetica", 18, "bold"), bg="LightSkyBlue1").pack(pady=(5, 10))
-        italic = ("Lucida", 13, "italic")
-        bold = ("Lucida", 14, "bold")
+        Label(form, text="-- Nouveau trajet --", font=title, bg="LightSkyBlue1").pack(pady=(5, 10))
+        italic = ("Lucida", 13, "italic") if OSX else ("Calibri", 10, "italic")
+        bold = ("Lucida", 14, "bold")if OSX else ("Calibri", 12, "bold")
 
         Label(form, text="Départ :", bg="LightSkyBlue1", anchor=W).pack(fill=BOTH, padx=15, pady=5)
         Entry(form, textvariable=self._start, width=40).pack(padx=5, pady=(0, 10))
