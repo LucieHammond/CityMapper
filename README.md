@@ -20,7 +20,7 @@ Remarque : Vous pouvez également télécharger le projet depuis git avec les co
 
 #### A savoir :
 - Le système que nous avons conçu permet à un ou plusieurs utilisateurs de s'enregistrer sur la plateforme pour définir
-leurs informations de titres de transports et leurs préférences, puis de s'y reconnecter ultrieurement avec un mot de passe.
+leurs informations de titres de transports et leurs préférences, puis de s'y reconnecter ultérieurement avec un mot de passe.
 Néanmoins, nous n'avons pas implémenté de BDD extérieure permanente pour stocker ces informations.
 Ainsi donc, ces données ne seront sauvegardées que temporairement pendant le temps où la fenêtre de l'interface restera ouverte.
 
