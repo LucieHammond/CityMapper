@@ -112,18 +112,18 @@ class ResultFrame(Frame):
         icon.grid(row=1, column=1, padx=(13, 5), pady=3)
         Label(first_line, text="%s (%s)" % (time, dist), font=("Helvetica", 18, "normal"), anchor=E, width=16)\
             .grid(row=1, column=2, pady=7)
-        Label(first_line, text=price, font=(None, 14, "italic"), width=7).grid(row=1, column=3, pady=7)
+        Label(first_line, text=price, font=("Lucida", 14, "italic"), width=7).grid(row=1, column=3, pady=7)
         if with_button:
             Button(first_line, text=">", font=("Helvetica", 16, "bold"), width=1, command=self.display_details)\
                 .grid(row=1, column=4, padx=5, pady=7)
 
         # Deuxième ligne récapitulative
         second_line = Frame(frame, width=340, height=50)
-        Label(second_line, text=walk, font=(None, 14, "italic"), width=10)\
+        Label(second_line, text=walk, font=("Lucida", 14, "italic"), width=10)\
             .grid(row=1, column=1, padx=(8, 0), pady=(0, 5))
-        Label(second_line, text=transfers, font=(None, 14, "italic"), width=4).grid(row=1, column=2, pady=(0, 5))
-        Label(second_line, text=weather, font=(None, 14, "italic"), width=9).grid(row=1, column=3, pady=(0, 5))
-        Label(second_line, text=difficulty, font=(None, 14, "italic"), width=9).grid(row=1, column=4, pady=(0, 5))
+        Label(second_line, text=transfers, font=("Lucida", 14, "italic"), width=4).grid(row=1, column=2, pady=(0, 5))
+        Label(second_line, text=weather, font=("Lucida", 14, "italic"), width=9).grid(row=1, column=3, pady=(0, 5))
+        Label(second_line, text=difficulty, font=("Lucida", 14, "italic"), width=9).grid(row=1, column=4, pady=(0, 5))
 
         return first_line, second_line
 
@@ -379,7 +379,7 @@ class ResultsPage(Frame):
         icon = Canvas(frame, width=35, height=35, highlightthickness=0)
         icon.create_image(0, 0, anchor=NW, image=image)
         icon.grid(row=1, column=1, padx=13, pady=3)
-        Label(frame, text=message, font=(None, 12, "normal")).grid(row=1, column=2)
+        Label(frame, text=message, font=("Lucida", 12, "normal")).grid(row=1, column=2)
         return frame
 
     def new_details_frame(self, route):

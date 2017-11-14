@@ -90,21 +90,21 @@ class ProfilePage(Frame):
               bg="ghost white", anchor=W, justify=LEFT).pack(pady=(0, 10), fill=BOTH)
 
         # - Forfaits Vélib
-        Label(frame1, text="Vélib", bg="ghost white", font=(None, 14, "bold"), anchor=W) \
+        Label(frame1, text="Vélib", bg="ghost white", font=("Lucida", 14, "bold"), anchor=W) \
             .pack(pady=(10, 0), padx=(10, 0), fill=BOTH)
         velib_options = OptionMenu(frame1, self._velib, *VELIB_SUBSCRIPTIONS.values())
         velib_options.config(width=50)
         velib_options.pack(padx=(0, 20))
 
         # - Forfaits Autolib
-        Label(frame1, text="Autolib", bg="ghost white", font=(None, 14, "bold"), anchor=W) \
+        Label(frame1, text="Autolib", bg="ghost white", font=("Lucida", 14, "bold"), anchor=W) \
             .pack(pady=(15, 0), padx=(10, 0), fill=BOTH)
         autolib_options = OptionMenu(frame1, self._autolib, *AUTOLIB_SUBSCRIPTIONS.values())
         autolib_options.config(width=50)
         autolib_options.pack(padx=(0, 20))
 
         # - Forfaits RATP
-        Label(frame1, text="Transports en commun", bg="ghost white", font=(None, 14, "bold"), anchor=W) \
+        Label(frame1, text="Transports en commun", bg="ghost white", font=("Lucida", 14, "bold"), anchor=W) \
             .pack(pady=(15, 0), padx=(10, 0), fill=BOTH)
         autolib_options = OptionMenu(frame1, self._subway, *SUBWAY_SUBSCRIPTIONS.values())
         autolib_options.config(width=50)
@@ -148,7 +148,7 @@ class ProfilePage(Frame):
 
         table = Frame(frame, bg="ghost white")
         table.pack()
-        italic = (None, 14, "italic")
+        italic = ("Lucida", 14, "italic")
 
         # Première ligne : degrés d'importance
         Label(table, text="Critères :", bg="ghost white", width=24, anchor=W).grid(row=1, column=1)

@@ -73,7 +73,7 @@ class RideSettingsPage(Frame):
         # Le menubar de tkinter ne fonctionne pas sur Mac OS X. Je simule donc un menu à la main
         menubar = Frame(self, height=30, bg="SlateGray3", relief=RAISED, borderwidth=2)
         menubar.pack(fill=BOTH)
-        Label(menubar, text="%s :" % self._system.current_user.username, font=(None, 14, "bold"), bg="SlateGray3")\
+        Label(menubar, text="%s :" % self._system.current_user.username, font=("Lucida", 14, "bold"), bg="SlateGray3")\
             .pack(side=LEFT, padx=(10, 5))
         Button(menubar, text="Mon profil", highlightbackground="SlateGray3", command=self.display_profile_1)\
             .pack(side=LEFT, padx=5)
@@ -117,8 +117,8 @@ class RideSettingsPage(Frame):
         form = Frame(self, bg="LightSkyBlue1")
 
         Label(form, text="-- Nouveau trajet --", font=("Helvetica", 18, "bold"), bg="LightSkyBlue1").pack(pady=(5, 10))
-        italic = (None, 13, "italic")
-        bold = (None, 14, "bold")
+        italic = ("Lucida", 13, "italic")
+        bold = ("Lucida", 14, "bold")
 
         Label(form, text="Départ :", bg="LightSkyBlue1", anchor=W).pack(fill=BOTH, padx=15, pady=5)
         Entry(form, textvariable=self._start, width=40).pack(padx=5, pady=(0, 10))
@@ -149,11 +149,11 @@ class RideSettingsPage(Frame):
         Label(luggage_frame, text="Sac à dos", font=italic, bg="LightSkyBlue1", width=8).grid(row=1, column=1, padx=3)
         Label(luggage_frame, text="Sac à main", font=italic, bg="LightSkyBlue1", width=8).grid(row=1, column=2, padx=3)
         Label(luggage_frame, text="Valise", font=italic, bg="LightSkyBlue1", width=8).grid(row=1, column=3, padx=3)
-        Label(luggage_frame, text="Encombrant", font=italic, bg="LightSkyBlue1", width=8).grid(row=1, column=4, padx=3)
-        Spinbox(luggage_frame, from_=0, to=10, width=3, textvariable=self._backpack).grid(row=2, column=1)
-        Spinbox(luggage_frame, from_=0, to=10, width=3, textvariable=self._handbag).grid(row=2, column=2)
-        Spinbox(luggage_frame, from_=0, to=10, width=3, textvariable=self._suitcase).grid(row=2, column=3)
-        Spinbox(luggage_frame, from_=0, to=10, width=3, textvariable=self._bulky).grid(row=2, column=4)
+        Label(luggage_frame, text="Encombrant", font=italic, bg="LightSkyBlue1", width=9).grid(row=1, column=4, padx=3)
+        Spinbox(luggage_frame, from_=0, to=10, width=3, textvariable=self._backpack).grid(row=2, column=1, padx=15)
+        Spinbox(luggage_frame, from_=0, to=10, width=3, textvariable=self._handbag).grid(row=2, column=2, padx=15)
+        Spinbox(luggage_frame, from_=0, to=10, width=3, textvariable=self._suitcase).grid(row=2, column=3, padx=15)
+        Spinbox(luggage_frame, from_=0, to=10, width=3, textvariable=self._bulky).grid(row=2, column=4, padx=15)
 
         Button(form, text="Calculer le meilleur itinéraire", font=bold, highlightbackground="LightSkyBlue1",
                command=self.start_calculation).pack(side=BOTTOM, pady=10)
